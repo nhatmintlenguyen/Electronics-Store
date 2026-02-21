@@ -3,210 +3,349 @@ from bs4 import BeautifulSoup
 import json
 import time
 import random
+from pymongo import MongoClient
+from datetime import datetime
+
+# MongoDB Configuration
+MONGO_URI = "mongodb://localhost:27017/"
+DATABASE_NAME = "electronics_store"
+COLLECTION_NAME = "products"
+
+# Product Schema Definition
+PRODUCT_SCHEMA = {
+    'name': '',                    # Product name
+    'url': '',                     # Product detail page URL
+    'image': '',                   # Product image URL
+    'price': 0,                    # Price as integer (VND)
+    'price_display': '',           # Formatted price string (e.g., "10.000.000đ")
+    'rating': 0.0,                 # Product rating (float)
+    'technical_specs': {},         # Dictionary of technical specifications
+    'product_container': '',       # HTML content of product detail container
+    'source_url': '',              # Category page URL where product was found
+    'category': '',                # Product category (Smartphones, Laptops, etc.)
+    'scraped_at': ''               # Timestamp when product was scraped (ISO format)
+}
+
+def create_empty_product():
+    """Create a new product dictionary with default schema values."""
+    return {
+        'name': '',
+        'url': '',
+        'image': '',
+        'price': 0,
+        'price_display': '',
+        'rating': 0.0,
+        'technical_specs': {},
+        'product_container': '',
+        'source_url': '',
+        'category': '',
+        'scraped_at': ''
+    }
+
+# URL List from scraper.py
+URL_LIST = [
+    "https://cellphones.com.vn/mobile/apple.html", 
+    "https://cellphones.com.vn/mobile/samsung.html", 
+    "https://cellphones.com.vn/mobile/xiaomi.html",
+    "https://cellphones.com.vn/mobile/oppo.html",
+    "https://cellphones.com.vn/mobile/huawei.html", 
+
+    "https://cellphones.com.vn/tablet/ipad.html", 
+    "https://cellphones.com.vn/tablet/samsung.html",
+    "https://cellphones.com.vn/tablet/xiaomi.html", 
+    "https://cellphones.com.vn/tablet/huawei.html",
+    "https://cellphones.com.vn/tablet/lenovo.html",
+    "https://cellphones.com.vn/tablet/may-doc-sach.html", 
+    
+    "https://cellphones.com.vn/laptop/dell.html",
+    "https://cellphones.com.vn/laptop/mac.html",
+    "https://cellphones.com.vn/laptop/hp.html",
+    "https://cellphones.com.vn/tablet/msi.html",
+    "https://cellphones.com.vn/laptop/asus.html", 
+    "https://cellphones.com.vn/laptop/lenovo.html",
+
+    "https://cellphones.com.vn/thiet-bi-am-thanh/tai-nghe/apple.html", 
+    "https://cellphones.com.vn/thiet-bi-am-thanh/tai-nghe/sony.html",
+
+    "https://cellphones.com.vn/man-hinh/lg.html", 
+    "https://cellphones.com.vn/man-hinh/xiaomi.html", 
+    
+    "https://cellphones.com.vn/phu-kien/the-nho-usb-otg/the-nho.html",
+    "https://cellphones.com.vn/phu-kien/sac-dien-thoai/cap-dien-thoai.html",
+    "https://cellphones.com.vn/phu-kien/sac-dien-thoai.html",  
+]
+
+def get_category_from_url(url):
+    """Extract category name from URL."""
+    if '/mobile/' in url:
+        return 'Smartphones'
+    elif '/laptop/' in url:
+        return 'Laptops'
+    elif '/tablet/' in url:
+        return 'Tablets'
+    elif '/thiet-bi-am-thanh/' in url or '/tai-nghe/' in url:
+        return 'Audio'
+    elif '/man-hinh/' in url:
+        return 'Monitors'
+    elif '/phu-kien/' in url:
+        return 'Accessories'
+    else:
+        return 'Other'
+
+def get_mongo_connection():
+    """Create MongoDB connection and return collection."""
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client[DATABASE_NAME]
+        collection = db[COLLECTION_NAME]
+        print(f"✓ Connected to MongoDB: {DATABASE_NAME}.{COLLECTION_NAME}")
+        return collection
+    except Exception as e:
+        print(f"✗ MongoDB connection error: {e}")
+        return None
 
 def fetch_page(url):
     """Fetch the content of a web page with proper headers."""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return response.text
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.text
+    except Exception as e:
+        print(f"✗ Error fetching {url}: {e}")
+        return None
 
-def scrape_products(category_name, category_url, max_products=3):
-    """Scrape products from a specific category page."""
-    print(f"Scraping {category_name} from {category_url}...")
+
+def extract_technical_specs(product_url):
+    """Extract technical specifications from product detail page."""
+    print(f"  → Fetching specs from: {product_url}")
+    
+    content = fetch_page(product_url)
+    if not content:
+        return {}
+    
+    soup = BeautifulSoup(content, 'html.parser')
+    
+    overview_specs = {}
+    product_container = {}
+    
+    # Find technical specifications table
+    tech_table = soup.find('table', class_='technical-content')
+    
+    if tech_table:
+        rows = tech_table.find_all('tr', class_='technical-content-item')
+        for row in rows:
+            cells = row.find_all('td')
+            if len(cells) >= 2:
+                key = cells[0].get_text(strip=True)
+                value = cells[1].get_text(strip=True)
+                overview_specs[key] = value
+    
+    have_product_container = soup.find('div', class_='block-content-product')
+    if have_product_container:
+        product_container = str(have_product_container)  # Store the HTML content of the product container
+    else: 
+        product_container = ""
+    
+    return overview_specs, product_container
+
+
+def scrape_product_from_item(item):
+    """Extract product information from a product item div."""
+    product_data = create_empty_product()
     
     try:
-        content = fetch_page(category_url)
-        soup = BeautifulSoup(content, 'html.parser')
+        # Find the link element
+        link = item.find('a', class_='product__link')
+        if not link:
+            return None
         
-        products = []
+        # Extract product URL
+        product_url = link.get('href', '')
+        if product_url and not product_url.startswith('http'):
+            product_url = 'https://cellphones.com.vn' + product_url
+        product_data['url'] = product_url
         
-        # Find product items - this selector may need adjustment based on actual HTML structure
-        product_items = soup.find_all('div', class_='product-info', limit=max_products)
+        # Extract product name
+        name_elem = item.find('div', class_='product__name')
+        if name_elem:
+            h3 = name_elem.find('h3')
+            product_data['name'] = h3.get_text(strip=True) if h3 else name_elem.get_text(strip=True)
         
-        if not product_items:
-            # Try alternative selectors
-            product_items = soup.find_all('div', {'class': lambda x: x and 'product' in x.lower()}, limit=max_products)
+        # Extract image
+        img_elem = item.find('img', class_='product__img')
+        if img_elem:
+            product_data['image'] = img_elem.get('src', '')
         
-        for item in product_items:
+        # Extract price
+        price_elem = item.find('p', class_='product__price--show')
+        if price_elem:
+            price_text = price_elem.get_text(strip=True)
+            # Clean price: remove 'đ', '.', and convert to number
+            price_clean = price_text.replace('đ', '').replace('.', '').replace(',', '').strip()
             try:
-                # Extract product name
-                name_elem = item.find(['h3', 'h4', 'a'], class_=lambda x: x and ('product' in str(x).lower() or 'name' in str(x).lower()))
-                if not name_elem:
-                    name_elem = item.find('a', href=lambda x: x and '/mobile/' in str(x))
-                
-                product_name = name_elem.get_text(strip=True) if name_elem else "Unknown Product"
-                
-                # Extract price
-                price_elem = item.find(['span', 'div', 'p'], class_=lambda x: x and 'price' in str(x).lower())
-                if price_elem:
-                    price_text = price_elem.get_text(strip=True).replace('₫', '').replace('.', '').replace(',', '').strip()
-                    try:
-                        price = float(price_text)
-                    except:
-                        price = random.uniform(5000000, 30000000)  # Fallback random price
-                else:
-                    price = random.uniform(5000000, 30000000)
-                
-                # Extract or generate rating
-                rating_elem = item.find(['span', 'div'], class_=lambda x: x and 'rating' in str(x).lower())
-                if rating_elem:
-                    rating_text = rating_elem.get_text(strip=True)
-                    try:
-                        rating = float(rating_text.split()[0])
-                    except:
-                        rating = round(random.uniform(3.5, 5.0), 1)
-                else:
-                    rating = round(random.uniform(3.5, 5.0), 1)
-                
-                # Extract description or create a generic one
-                desc_elem = item.find(['p', 'div'], class_=lambda x: x and 'desc' in str(x).lower())
-                description = desc_elem.get_text(strip=True) if desc_elem else f"High-quality {product_name}"
-                
-                # Extract image
-                img_elem = item.find('img')
-                image_url = img_elem.get('src', '') if img_elem else ""
-                
-                products.append({
-                    'name': product_name,
-                    'description': description[:500],  # Limit description length
-                    'price': price,
-                    'rating': min(rating, 5.0),  # Ensure rating doesn't exceed 5.0
-                    'image_url': image_url,
-                    'category': category_name
-                })
-                
-                print(f"  ✓ Scraped: {product_name} - {price:,.0f}₫ - Rating: {rating}")
-                
-            except Exception as e:
-                print(f"  ✗ Error scraping product: {e}")
-                continue
+                product_data['price'] = int(price_clean)
+                product_data['price_display'] = price_text
+            except:
+                product_data['price'] = 0
+                product_data['price_display'] = price_text
         
-        # If scraping failed, generate sample data
-        if not products:
-            print(f"  ⚠ Could not scrape products, generating sample data for {category_name}")
-            products = generate_sample_products(category_name, max_products)
+        # Extract rating if available
+        rating_elem = item.find('div', class_='product__box-rating')
+        if rating_elem:
+            rating_text = rating_elem.get_text(strip=True)
+            try:
+                product_data['rating'] = float(rating_text)
+            except:
+                product_data['rating'] = 0.0
         
-        return products
+        # Fetch technical specifications from detail page
+        if product_url:
+            product_data['technical_specs'], product_data['product_container'] = extract_technical_specs(product_url)
+            time.sleep(0.01)  
+        
+        return product_data
         
     except Exception as e:
-        print(f"Error fetching page: {e}")
-        print(f"Generating sample data for {category_name}")
-        return generate_sample_products(category_name, max_products)
+        print(f"  ✗ Error extracting product: {e}")
+        return None
 
-def generate_sample_products(category_name, count=3):
-    """Generate sample products when scraping fails."""
+def scrape_products_from_url(url, max_products=10):
+    """Scrape all products from a category page."""
+    print(f"\n{'='*60}")
+    print(f"Scraping: {url}")
+    print('='*60)
+    
+    content = fetch_page(url)
+    if not content:
+        return []
+    
+    soup = BeautifulSoup(content, 'html.parser')
     products = []
     
-    sample_products = {
-        'Smartphones': [
-            ('iPhone 15 Pro Max', 34990000, 4.8),
-            ('Samsung Galaxy S24 Ultra', 29990000, 4.7),
-            ('Xiaomi 14 Pro', 19990000, 4.5),
-            ('OPPO Find X7 Pro', 24990000, 4.6),
-        ],
-        'Laptops': [
-            ('MacBook Pro 16" M3', 64990000, 4.9),
-            ('Dell XPS 15', 42990000, 4.7),
-            ('ASUS ROG Zephyrus G14', 38990000, 4.6),
-            ('Lenovo ThinkPad X1 Carbon', 45990000, 4.5),
-        ],
-        'Tablets': [
-            ('iPad Pro 12.9"', 29990000, 4.8),
-            ('Samsung Galaxy Tab S9', 24990000, 4.6),
-            ('iPad Air', 17990000, 4.7),
-        ],
-        'Audio': [
-            ('AirPods Pro 2', 6290000, 4.8),
-            ('Sony WH-1000XM5', 8990000, 4.9),
-            ('Bose QuietComfort Ultra', 9990000, 4.7),
-            ('Samsung Galaxy Buds2 Pro', 4590000, 4.5),
-        ],
-        'Accessories': [
-            ('Apple Watch Ultra 2', 21990000, 4.8),
-            ('Samsung Galaxy Watch6', 7990000, 4.6),
-            ('Anker PowerBank 20000mAh', 890000, 4.5),
-            ('Belkin USB-C Cable', 490000, 4.3),
-        ]
-    }
+    # Find all product containers with the specific class
+    product_containers = soup.find_all('div', class_='product-info-container product-item', limit=max_products)
     
-    available = sample_products.get(category_name, sample_products['Smartphones'])
+    print(f"Found {len(product_containers)} products")
     
-    for i in range(min(count, len(available))):
-        name, price, rating = available[i]
-        products.append({
-            'name': name,
-            'description': f'High-quality {name} with excellent features and performance.',
-            'price': price,
-            'rating': rating,
-            'image_url': '',
-            'category': category_name
-        })
+    for idx, container in enumerate(product_containers, 1):
+        print(f"\n[{idx}/{len(product_containers)}] Processing product...")
+        
+        product_data = scrape_product_from_item(container)
+        
+        if product_data:
+            # Add metadata
+            product_data['source_url'] = url
+            product_data['category'] = get_category_from_url(url)
+            product_data['scraped_at'] = datetime.now().isoformat()
+            
+            products.append(product_data)
+            print(f"  ✓ {product_data.get('name', 'Unknown')[:60]}...")
+            print(f"    Price: {product_data.get('price_display', 'N/A')}")
+            print(f"    Rating: {product_data.get('rating', 'N/A')}")
+            print(f"    Specs: {len(product_data.get('technical_specs', {}))} fields")
+        
+        time.sleep(1)  # Be respectful to the server
     
     return products
 
-def main():
-    """Main scraping function."""
-    print("=" * 60)
-    print("Electronics Store Data Scraper")
-    print("=" * 60)
+def save_to_mongodb(products, collection):
+    """Save products to MongoDB."""
+    if collection is None:
+        print("✗ No MongoDB collection available")
+        return 0
     
-    # Define categories to scrape
-    categories = [
-        {
-            'name': 'Smartphones',
-            'url': 'https://cellphones.com.vn/mobile.html',
-            'products_needed': 3
-        },
-        {
-            'name': 'Laptops',
-            'url': 'https://cellphones.com.vn/laptop.html',
-            'products_needed': 3
-        },
-        {
-            'name': 'Tablets',
-            'url': 'https://cellphones.com.vn/tablet.html',
-            'products_needed': 2
-        },
-        {
-            'name': 'Audio',
-            'url': 'https://cellphones.com.vn/phu-kien/tai-nghe.html',
-            'products_needed': 2
-        },
-        {
-            'name': 'Accessories',
-            'url': 'https://cellphones.com.vn/phu-kien.html',
-            'products_needed': 2
-        }
-    ]
+    if not products:
+        print("✗ No products to save")
+        return 0
+    
+    try:
+        # Insert products into MongoDB
+        result = collection.insert_many(products)
+        inserted_count = len(result.inserted_ids)
+        print(f"\n✓ Inserted {inserted_count} products into MongoDB")
+        return inserted_count
+    except Exception as e:
+        print(f"✗ Error saving to MongoDB: {e}")
+        return 0
+
+def main():
+    """Main scraping function with MongoDB storage."""
+    print("\n" + "="*70)
+    print("  CELLPHONES.COM.VN SCRAPER - MongoDB Edition")
+    print("="*70)
+    
+    # Connect to MongoDB
+    collection = get_mongo_connection()
+    
+    # Ask user for products per URL
+    try:
+        max_products = int(input("\nHow many products to scrape per URL? (default: 5): ") or "5")
+    except:
+        max_products = 5
     
     all_products = []
+    total_scraped = 0
     
-    for category in categories:
-        products = scrape_products(
-            category['name'],
-            category['url'],
-            category['products_needed']
-        )
+    # Scrape from each URL
+    for idx, url in enumerate(URL_LIST, 1):
+        print(f"\n\n{'█'*70}")
+        print(f"  [{idx}/{len(URL_LIST)}] Processing URL")
+        print('█'*70)
+        
+        products = scrape_products_from_url(url, max_products)
         all_products.extend(products)
-        time.sleep(1)  # Be respectful to the server
+        total_scraped += len(products)
+        
+        print(f"\n  → Scraped {len(products)} products from this URL")
+        print(f"  → Total so far: {total_scraped} products")
+        
+        # Save to MongoDB after each URL (incremental save)
+        if products and collection is not None:
+            save_to_mongodb(products, collection)
+        
+        # Delay between URLs
+        if idx < len(URL_LIST):
+            time.sleep(2)
     
-    # Save to JSON file
+    # Save to JSON as backup (remove MongoDB ObjectId fields)
+    products_for_json = []
+    for product in all_products:
+        product_copy = product.copy()
+        if '_id' in product_copy:
+            del product_copy['_id']
+        products_for_json.append(product_copy)
+    
     output_data = {
-        'categories': [cat['name'] for cat in categories],
-        'products': all_products,
-        'total_products': len(all_products)
+        'total_products': len(products_for_json),
+        'scraped_at': datetime.now().isoformat(),
+        'source_urls': URL_LIST,
+        'products': products_for_json
     }
     
-    with open('scraped_data.json', 'w', encoding='utf-8') as f:
+    json_file = 'scraped_products_detailed.json'
+    with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)
     
-    print("\n" + "=" * 60)
-    print(f"✓ Successfully scraped {len(all_products)} products!")
-    print(f"✓ Data saved to scraped_data.json")
-    print("=" * 60)
+    # Final summary
+    print("\n\n" + "="*70)
+    print("  SCRAPING COMPLETE!")
+    print("="*70)
+    print(f"  ✓ Total products scraped: {len(all_products)}")
+    print(f"  ✓ Saved to MongoDB: {DATABASE_NAME}.{COLLECTION_NAME}")
+    print(f"  ✓ Backup JSON file: {json_file}")
+    print("="*70)
+    
+    # Show sample product
+    if all_products:
+        print("\n📦 Sample Product:")
+        sample = all_products[0]
+        print(f"  Name: {sample.get('name', 'N/A')}")
+        print(f"  Price: {sample.get('price_display', 'N/A')}")
+        print(f"  URL: {sample.get('url', 'N/A')}")
+        print(f"  Specs: {len(sample.get('technical_specs', {}))} fields")
 
 if __name__ == "__main__":
     main()
