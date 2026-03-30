@@ -32,7 +32,7 @@ CREATE TABLE categories (
 
 -- Products table
 CREATE TABLE products (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
     category_id INT NOT NULL,
     name VARCHAR(200) NOT NULL,
     description TEXT,
@@ -41,6 +41,14 @@ CREATE TABLE products (
     image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+CREATE TABLE product_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    hightlight MEDIUMTEXT,
+    technical_specifications TEXT,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
 -- Locations table

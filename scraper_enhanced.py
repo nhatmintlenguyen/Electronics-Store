@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 import json
 import time
 import random
+import re
 from pymongo import MongoClient
 from datetime import datetime
+from playwright.sync_api import sync_playwright  
 
 # MongoDB Configuration
 MONGO_URI = "mongodb://localhost:27017/"
@@ -16,6 +18,7 @@ PRODUCT_SCHEMA = {
     'name': '',                    # Product name
     'url': '',                     # Product detail page URL
     'image': '',                   # Product image URL
+    'images': [],                  # All product gallery image URLs
     'price': 0,                    # Price as integer (VND)
     'price_display': '',           # Formatted price string (e.g., "10.000.000đ")
     'rating': 0.0,                 # Product rating (float)
@@ -32,6 +35,7 @@ def create_empty_product():
         'name': '',
         'url': '',
         'image': '',
+        'images': [],
         'price': 0,
         'price_display': '',
         'rating': 0.0,
@@ -118,18 +122,71 @@ def fetch_page(url):
         return None
 
 
+def fetch_page_with_load_more(url, target_products=20, max_clicks=10):
+    """Fetch category page HTML with dynamic 'show more' clicking via headless browser."""
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(viewport={"width": 1366, "height": 900})
+
+            page.goto(url, wait_until='domcontentloaded', timeout=60000)
+            try:
+                page.wait_for_load_state('networkidle', timeout=5000)
+            except Exception:
+                pass
+
+            clicks = 0
+            while clicks < max_clicks:
+                current_count = len(page.query_selector_all('div.product-info-container.product-item'))
+                if target_products > 0 and current_count >= target_products:
+                    break
+
+                show_more_btn = page.query_selector('a.button.btn-show-more.button__show-more-product')
+                if not show_more_btn:
+                    break
+
+                show_more_btn.scroll_into_view_if_needed()
+                show_more_btn.click(timeout=2000)
+                clicks += 1
+
+                # Wait until new products are rendered (or button disappears)
+                try:
+                    page.wait_for_function(
+                        """(previousCount) => {
+                            const count = document.querySelectorAll('div.product-info-container.product-item').length;
+                            const hasShowMore = !!document.querySelector('a.button.btn-show-more.button__show-more-product');
+                            return count > previousCount || !hasShowMore;
+                        }""",
+                        arg=current_count,
+                        timeout=3000,
+                    )
+                except Exception:
+                    # If waiting condition is not met quickly, continue without blocking
+                    pass
+
+            html = page.content()
+            browser.close()
+
+            print(f"  → Headless load-more clicks: {clicks}")
+            return html
+    except Exception as e:
+        print(f"✗ Headless load-more failed for {url}: {e}")
+        return None
+    
+
 def extract_technical_specs(product_url):
     """Extract technical specifications from product detail page."""
     print(f"  → Fetching specs from: {product_url}")
     
     content = fetch_page(product_url)
     if not content:
-        return {}
+        return {}, "", []
     
     soup = BeautifulSoup(content, 'html.parser')
     
     overview_specs = {}
-    product_container = {}
+    product_container = ""
+    gallery_images = []
     
     # Find technical specifications table
     tech_table = soup.find('table', class_='technical-content')
@@ -148,8 +205,51 @@ def extract_technical_specs(product_url):
         product_container = str(have_product_container)  # Store the HTML content of the product container
     else: 
         product_container = ""
+
+    # Extract gallery images from product gallery slider
+    # 1) find div.swiper-wrapper
+    # 2) inside it, find children div.swiper-slide.button__view-gallery (visible or not)
+    # 3) each slide should contain one img
+    image_ext_pattern = re.compile(r'\.(jpg|jpeg|png|webp|avif|gif|bmp|svg)(\?.*)?$', re.IGNORECASE)
+    seen = set()
+
+    wrappers = soup.select('div.swiper-wrapper')
+    print(wrappers)
+    best_wrapper = None
+    best_count = 0
+
+    # Choose wrapper that most likely contains the real product gallery
+    for wrapper in wrappers:
+        slide_count = len(wrapper.select('div.swiper-slide.button__view-gallery'))
+        if slide_count > best_count:
+            best_count = slide_count
+            best_wrapper = wrapper
+
+    if best_wrapper:
+        slide_divs = best_wrapper.select('div.swiper-slide.button__view-gallery')
+        for slide in slide_divs:
+            img = slide.find('img')
+            if not img:
+                continue
+
+            src = (img.get('src') or img.get('data-src') or '').strip()
+            if not src:
+                continue
+
+            if not image_ext_pattern.search(src):
+                continue
+
+            if src not in seen:
+                seen.add(src)
+                gallery_images.append(src)
+
+    # Fallback to the main product image if gallery is not found
+    if not gallery_images:
+        og_image = soup.find('meta', property='og:image')
+        if og_image and og_image.get('content'):
+            gallery_images.append(og_image.get('content').strip())
     
-    return overview_specs, product_container
+    return overview_specs, product_container, gallery_images
 
 
 def scrape_product_from_item(item):
@@ -203,13 +303,12 @@ def scrape_product_from_item(item):
         
         # Fetch technical specifications from detail page
         if product_url:
-            product_data['technical_specs'], product_data['product_container'] = extract_technical_specs(product_url)
-            time.sleep(0.01)  
+            product_data['technical_specs'], product_data['product_container'], product_data['images'] = extract_technical_specs(product_url)
         
         return product_data
         
     except Exception as e:
-        print(f"  ✗ Error extracting product: {e}")
+        print(f"  Error extracting product: {e}")
         return None
 
 def scrape_products_from_url(url, max_products=10):
@@ -223,10 +322,25 @@ def scrape_products_from_url(url, max_products=10):
         return []
     
     soup = BeautifulSoup(content, 'html.parser')
+
+    # Detect dynamic "show more" button and use headless browser when needed
+    has_show_more_button = soup.select_one('a.button.btn-show-more.button__show-more-product') is not None
+    initial_count = len(soup.find_all('div', class_='product-info-container product-item'))
+
+    # max_products <= 0 means scrape all available products
+    should_use_headless = has_show_more_button and (max_products <= 0 or initial_count < max_products)
+    if should_use_headless:
+        print("Detected 'Xem thêm sản phẩm' button. Using headless browser to load more products...")
+        target_products = max_products if max_products > 0 else 9999
+        enhanced_content = fetch_page_with_load_more(url, target_products=target_products)
+        if enhanced_content:
+            soup = BeautifulSoup(enhanced_content, 'html.parser')
+
     products = []
     
     # Find all product containers with the specific class
-    product_containers = soup.find_all('div', class_='product-info-container product-item', limit=max_products)
+    find_limit = None if max_products <= 0 else max_products
+    product_containers = soup.find_all('div', class_='product-info-container product-item', limit=find_limit)
     
     print(f"Found {len(product_containers)} products")
     
@@ -246,9 +360,6 @@ def scrape_products_from_url(url, max_products=10):
             print(f"    Price: {product_data.get('price_display', 'N/A')}")
             print(f"    Rating: {product_data.get('rating', 'N/A')}")
             print(f"    Specs: {len(product_data.get('technical_specs', {}))} fields")
-        
-        time.sleep(1)  # Be respectful to the server
-    
     return products
 
 def save_to_mongodb(products, collection):
@@ -282,7 +393,7 @@ def main():
     
     # Ask user for products per URL
     try:
-        max_products = int(input("\nHow many products to scrape per URL? (default: 5): ") or "5")
+        max_products = int(input("\nHow many products to scrape per URL? (default: 5, enter 0 for all): ") or "5")
     except:
         max_products = 5
     
@@ -305,10 +416,6 @@ def main():
         # Save to MongoDB after each URL (incremental save)
         if products and collection is not None:
             save_to_mongodb(products, collection)
-        
-        # Delay between URLs
-        if idx < len(URL_LIST):
-            time.sleep(2)
     
     # Save to JSON as backup (remove MongoDB ObjectId fields)
     products_for_json = []
@@ -333,14 +440,14 @@ def main():
     print("\n\n" + "="*70)
     print("  SCRAPING COMPLETE!")
     print("="*70)
-    print(f"  ✓ Total products scraped: {len(all_products)}")
-    print(f"  ✓ Saved to MongoDB: {DATABASE_NAME}.{COLLECTION_NAME}")
-    print(f"  ✓ Backup JSON file: {json_file}")
+    print(f"  Total products scraped: {len(all_products)}")
+    print(f"  Saved to MongoDB: {DATABASE_NAME}.{COLLECTION_NAME}")
+    print(f"  Backup JSON file: {json_file}")
     print("="*70)
     
     # Show sample product
     if all_products:
-        print("\n📦 Sample Product:")
+        print("\nSample Product:")
         sample = all_products[0]
         print(f"  Name: {sample.get('name', 'N/A')}")
         print(f"  Price: {sample.get('price_display', 'N/A')}")

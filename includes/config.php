@@ -28,4 +28,7 @@ function getDBConnection() {
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Include language support
+require_once __DIR__ . '/language.php';
 ?>

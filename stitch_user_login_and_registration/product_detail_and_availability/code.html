@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Product Detail and Availability - TechStore</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f6eeb",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-8">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2 group" href="#">
+<div class="bg-primary p-1.5 rounded-lg text-white">
+<span class="material-symbols-outlined block">bolt</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-extrabold tracking-tight">TechStore</h2>
+</a>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Computers</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Mobile</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Audio</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-semibold" href="#">Gaming</a>
+</nav>
+</div>
+<div class="flex-1 max-w-md hidden lg:block">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search components, accessories..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-white dark:border-background-dark">2</span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+<span class="material-symbols-outlined">person</span>
+</button>
+<div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+<div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 border-2 border-primary/20 bg-cover bg-center" data-alt="User profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZBG9hlJvAniAzyEWNZMmjxjVBw6JLcSc2WcTjO32kl2YnZ9uSA-akgW_RXX_JDJjdcBD5l3T8ULk8wfjoBxAE071thvdh9AcwofyYpZrhJ26N3ZIXtPRfRLpfGTxjt6nEBt6c1UYLQn1-GSYb2LhN7Y1imIFvdxJsIzJ9qNaJIyDcaaT1FMVqYiVMATI1vJ_tqnWGq_DKiAEFn9G6AO1z-SGXJBhKKyx5oquTU2cajGQ4BQqKHdVceXKDoFzmeaCZzrmFJp1XPPTK')"></div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 py-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
+<a class="hover:text-primary" href="#">Home</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<a class="hover:text-primary" href="#">Laptops</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium">UltraBook Pro X15</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Left Column: Media -->
+<div class="lg:col-span-7 space-y-4">
+<div class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 aspect-[4/3] flex items-center justify-center p-8 group">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" data-alt="High resolution professional laptop front view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgJs4McxCuP7_74z5QSKnioGQI586HiSZ4Iw7UgS6CF_fwx1OQOl9RFBb463xRgWr6Jz9xY_4N8vLpIufobNTO-vzYKa1OrFFW63vU8Egy89xoNR25fTNiadvLHirjrP4XDEBUMeLCvJpoiNbX0ziWVDOmkGysex-8TZagQA1abUGV847kSbdxGVp5EpQmNBBTQyqEtGttmJV91rUxoe1xsmQRJNhJhaevuzi1QJk-i7sLVGYPKVMxFlneauXbySsgaaS-fNCFbTCM"/>
+</div>
+<div class="grid grid-cols-4 gap-4">
+<div class="bg-white dark:bg-slate-900 border-2 border-primary rounded-lg aspect-square p-2 cursor-pointer">
+<img class="w-full h-full object-contain" data-alt="Laptop keyboard close up view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQrfcxus9zWDf8kb7qQtTu4DgLCLMNkTXAi-_F4tp7Q7k7TKD4KD30yL7q6P82l0iK4oOiNgLkdB9bxYwQ5E2-abxius1rcTCOHUspX1zxUBZ30VQcVFlZuo42ygIZJblZPLFJzrIPJ89q_jpy2sRZflf8F0S34z7t9PeMT9xSnIVu77JycpgJ2FM1x0Kz2ExSwOmD2nj-4jEQgtYB1yPqKbJCzpzCM74OyWfPrDxCaTfShUDHsx5QHxw2u4tiUaeSJ-bSyAslp9r1"/>
+</div>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg aspect-square p-2 cursor-pointer hover:border-primary transition-colors">
+<img class="w-full h-full object-contain opacity-70" data-alt="Laptop side profile showing ports" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoi7tivDzbxVCjcP0T6XRplkpD9jXSbfyJ7kO0cisVId7zSzvzwa_0hBz6oW-c67SRUHnXP3CttVxtcbImNayzzMRjo7d7erFDgJGKJhRvCXWUrwa5ef_kgXnW1-kpcnJUqaJV7E_8_QA2cFNYwM1kcIh_AlFzN6cm-4JqXSCjTnGucdaQKKYy-foiVeYvcBAMt82PznjfWQ1C31G2Dh6IQXYSfnaP5ukz2BbMN64ROS-KM5gYDr6W5m7-rtvPYkP2aHolNXXF7skU"/>
+</div>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg aspect-square p-2 cursor-pointer hover:border-primary transition-colors">
+<img class="w-full h-full object-contain opacity-70" data-alt="Laptop screen and slim bezels" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAC7TWbMaq8InRco_6ydcL2DwKoP1m-xJmTcbijlUY707njlkANExBYrtwlksvV9nPwzfLpu4mmTEXaR5HgfWzoa90wQv8dZ5c6N_3124BV0PRz9mUumtVe4-gL2dazup0_6VND9agYFlKA3KoELNM4_xDo5NZ_oCIJdw-3KG9RlT5QqgplwNdDLZp5L8HNQy4Kb35M2QtmTNEVv5ge0GyLC6Ft9TNhkyRGMQOQNOTzCHKHQ8ALZ3yLmB3LBwRVYxwalSGvVSiMSZ0T"/>
+</div>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg aspect-square p-2 cursor-pointer hover:border-primary transition-colors">
+<img class="w-full h-full object-contain opacity-70" data-alt="Laptop top lid with minimalist logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY6s4b4U4j7Wn1PPF1bTPWw__YJM0DC0Qjqc9DtJQJkIHW5qiu0Qyi9muUD-_CwtW79lqrdfpSHBLw69biwNTkbeof6IKtvZpuYS8RdjHvaBMQGShuwXCmXaywbw2lwc6Ddq1XXAAX-s10atDarMEGIwd9tpe4VudtHq3ak4bCbOBH0VbNtLN8ZkJZNXQc61qf7C9gcY-h4DoWM7S3T3gr-mTpxEfqf3jwtMx8YCl-Vm5sILDyY4xe2VcviLNGRVXddJLTKDt-niII"/>
+</div>
+</div>
+</div>
+<!-- Right Column: Info & Actions (Sticky) -->
+<div class="lg:col-span-5">
+<div class="sticky top-24 space-y-8">
+<div class="space-y-4">
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-xs">verified</span>
+                            In Stock &amp; Ready to Ship
+                        </div>
+<h1 class="text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">UltraBook Pro X15 - 32GB RAM, 1TB SSD, 4K OLED</h1>
+<p class="text-slate-500 dark:text-slate-400 font-medium">SKU: TECH-X15-2024 • Rating: ★★★★☆ (128 reviews)</p>
+<div class="pt-4 flex items-baseline gap-4">
+<span class="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">$2,499.00</span>
+<span class="text-xl text-slate-400 line-through font-medium">$2,899.00</span>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex gap-4">
+<div class="w-24 h-12 flex items-center justify-between px-3 border border-slate-200 dark:border-slate-800 rounded-lg">
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">remove</span></button>
+<span class="font-bold">1</span>
+<button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-lg">add</span></button>
+</div>
+<button class="flex-1 bg-primary hover:bg-primary/90 text-white h-12 rounded-lg font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">shopping_bag</span>
+                                Add to Cart
+                            </button>
+</div>
+<button class="w-full h-12 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg font-bold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+                            Add to Wishlist
+                        </button>
+</div>
+<!-- Store Availability Module -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">store</span>
+                                Store Availability
+                            </h3>
+<button class="text-primary text-xs font-bold hover:underline">See All</button>
+</div>
+<div class="p-2 space-y-1">
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white">Downtown Flagship</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+<p class="text-[11px] text-emerald-600 font-bold uppercase">Available Today</p>
+</div>
+</div>
+<a class="h-8 px-3 rounded bg-slate-100 dark:bg-slate-800 flex items-center gap-1.5 text-xs font-bold hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-base">map</span>
+                                    Directions
+                                </a>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white">Northside Tech Hub</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+<p class="text-[11px] text-amber-600 font-bold uppercase">Low Stock: 2 Left</p>
+</div>
+</div>
+<a class="h-8 px-3 rounded bg-slate-100 dark:bg-slate-800 flex items-center gap-1.5 text-xs font-bold hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-base">map</span>
+                                    Directions
+                                </a>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white">Valley Mall Station</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+<p class="text-[11px] text-slate-500 font-bold uppercase">Out of Stock</p>
+</div>
+</div>
+<a class="h-8 px-3 rounded bg-slate-100 dark:bg-slate-800 flex items-center gap-1.5 text-xs font-bold hover:bg-primary/10 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-base">map</span>
+                                    Directions
+                                </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Wide Rich Content Section -->
+<div class="mt-20">
+<div class="border-b border-slate-200 dark:border-slate-800 mb-8 flex items-center gap-8 overflow-x-auto whitespace-nowrap">
+<button class="px-2 py-4 border-b-2 border-primary text-primary font-bold text-base">Overview</button>
+<button class="px-2 py-4 border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 font-bold text-base">Specifications</button>
+<button class="px-2 py-4 border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 font-bold text-base">Reviews (128)</button>
+<button class="px-2 py-4 border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 font-bold text-base">Support</button>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-2xl p-8 lg:p-12 shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="max-w-4xl mx-auto prose dark:prose-invert">
+<h2 class="text-3xl font-black mb-6">Uncompromising Performance</h2>
+<p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                        Experience the pinnacle of mobile computing with the UltraBook Pro X15. Designed for professionals who demand speed without compromise, this machine combines raw power with a stunningly thin profile. Whether you're compiling complex code, rendering 4K video, or managing enterprise-scale datasets, the X15 delivers consistent, peak performance.
+                    </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
+<div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-primary mb-2">memory</span>
+<h4 class="font-bold text-xl mb-2">Next-Gen Architecture</h4>
+<p class="text-sm text-slate-600 dark:text-slate-400">Powered by the latest 14-core processor and 32GB of high-speed LPDDR5X RAM for seamless multitasking.</p>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-100 dark:border-slate-700">
+<span class="material-symbols-outlined text-primary mb-2">display_settings</span>
+<h4 class="font-bold text-xl mb-2">4K OLED InfinityEdge</h4>
+<p class="text-sm text-slate-600 dark:text-slate-400">100% DCI-P3 color gamut and 600 nits peak brightness for breathtaking visuals and color accuracy.</p>
+</div>
+</div>
+<h3 class="text-2xl font-bold mb-6 pt-8 border-t border-slate-100 dark:border-slate-800">Technical Specifications</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr>
+<th class="py-4 px-6 bg-slate-50 dark:bg-slate-800/50 font-bold text-slate-900 dark:text-white rounded-tl-lg">Feature</th>
+<th class="py-4 px-6 bg-slate-50 dark:bg-slate-800/50 font-bold text-slate-900 dark:text-white rounded-tr-lg">Detail</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500">Processor</td>
+<td class="py-4 px-6">13th Gen Intel® Core™ i9-13900H (14-Core, 5.40 GHz Turbo)</td>
+</tr>
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500">Graphics</td>
+<td class="py-4 px-6">NVIDIA® GeForce RTX™ 4070, 8GB GDDR6</td>
+</tr>
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500">Memory</td>
+<td class="py-4 px-6">32GB Dual Channel LPDDR5x at 6400MT/s</td>
+</tr>
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500">Storage</td>
+<td class="py-4 px-6">1TB M.2 PCIe NVMe Solid State Drive</td>
+</tr>
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500">Display</td>
+<td class="py-4 px-6">15.6" 4K (3840 x 2400) OLED Touch, 600-Nit, HDR400</td>
+</tr>
+<tr>
+<td class="py-4 px-6 font-semibold text-slate-500 rounded-bl-lg">Battery</td>
+<td class="py-4 px-6 rounded-br-lg">97Whr 6-Cell Battery with FastCharge Technology</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 bg-white dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="space-y-4">
+<div class="flex items-center gap-2">
+<div class="bg-primary p-1.5 rounded-lg text-white">
+<span class="material-symbols-outlined block">bolt</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-extrabold tracking-tight">TechStore</h2>
+</div>
+<p class="text-sm text-slate-500">Building the future of computing since 2012. Quality electronics for creators and engineers.</p>
+</div>
+<div>
+<h4 class="font-bold mb-4 text-slate-900 dark:text-white">Shop</h4>
+<ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+<li><a class="hover:text-primary" href="#">New Arrivals</a></li>
+<li><a class="hover:text-primary" href="#">Best Sellers</a></li>
+<li><a class="hover:text-primary" href="#">Refurbished</a></li>
+<li><a class="hover:text-primary" href="#">Accessories</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4 text-slate-900 dark:text-white">Support</h4>
+<ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+<li><a class="hover:text-primary" href="#">Order Status</a></li>
+<li><a class="hover:text-primary" href="#">Shipping Policy</a></li>
+<li><a class="hover:text-primary" href="#">Warranty Information</a></li>
+<li><a class="hover:text-primary" href="#">Help Center</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4 text-slate-900 dark:text-white">Newsletter</h4>
+<div class="flex gap-2">
+<input class="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none" placeholder="Email" type="email"/>
+<button class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm">Join</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400">
+            © 2024 TechStore Inc. All rights reserved.
+        </div>
+</footer>
+</body></html>

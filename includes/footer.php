@@ -1,38 +1,75 @@
     </main>
     
     <!-- Footer -->
-    <footer class="bg-dark text-white mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="bi bi-shop"></i> <?php echo SITE_NAME; ?></h5>
-                    <p>Your trusted destination for quality electronics.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="index.php" class="text-white-50">Home</a></li>
-                        <li><a href="products.php" class="text-white-50">Products</a></li>
-                        <li><a href="locations.php" class="text-white-50">Store Locations</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <p class="text-white-50">
-                        <i class="bi bi-envelope"></i> info@electronicsstore.com<br>
-                        <i class="bi bi-telephone"></i> +84 123 456 789
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Brand Info -->
+                <div class="col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="text-primary">
+                            <span class="material-symbols-outlined text-3xl">bolt</span>
+                        </div>
+                        <span class="text-xl font-bold tracking-tight">TechStore</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                        <?php echo getCurrentLanguage() == 'vi' ? 'Điểm đến đáng tin cậy của bạn cho các thiết bị điện tử chất lượng.' : 'Your trusted destination for quality electronics.'; ?>
                     </p>
                 </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo getCurrentLanguage() == 'vi' ? 'Liên kết nhanh' : 'Quick Links'; ?></h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="index.php" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('home'); ?></a></li>
+                        <li><a href="products.php" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('products'); ?></a></li>
+                        <li><a href="locations.php" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() == 'vi' ? 'Cửa hàng' : 'Store Locations'; ?></a></li>
+                        <li><a href="about.php" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('about_us'); ?></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Customer Service -->
+                <div>
+                    <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo t('customer_support'); ?></h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('contact'); ?></a></li>
+                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() == 'vi' ? 'Hướng dẫn mua hàng' : 'Shopping Guide'; ?></a></li>
+                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() == 'vi' ? 'Chính sách đổi trả' : 'Return Policy'; ?></a></li>
+                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('warranty'); ?></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo t('contact'); ?></h5>
+                    <div class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                        <p class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">mail</span>
+                            info@techstore.com
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">call</span>
+                            +84 123 456 789
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">location_on</span>
+                            <?php echo getCurrentLanguage() == 'vi' ? 'Hà Nội, Việt Nam' : 'Hanoi, Vietnam'; ?>
+                        </p>
+                    </div>
+                </div>
             </div>
-            <hr class="bg-white">
-            <div class="text-center">
-                <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            
+            <!-- Bottom Bar -->
+            <div class="border-t border-slate-200 dark:border-slate-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-slate-500">© <?php echo date('Y'); ?> TechStore. <?php echo t('all_rights_reserved'); ?></p>
+                <div class="flex gap-6 text-xs">
+                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('privacy_policy'); ?></a>
+                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('terms_of_service'); ?></a>
+                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo getCurrentLanguage() == 'vi' ? 'Cài đặt cookie' : 'Cookies Settings'; ?></a>
+                </div>
             </div>
         </div>
     </footer>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
     <script src="assets/js/script.js"></script>
