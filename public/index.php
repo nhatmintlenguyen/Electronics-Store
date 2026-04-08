@@ -1,32 +1,29 @@
 <?php
-require_once 'includes/config.php';
-require_once 'includes/functions.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 $page_title = t('home');
-include 'includes/header.php';
+include APP_PATH . '/Views/layouts/header.php';
 
-// Fetch featured products
 $conn = getDBConnection();
-$stmt = $conn->prepare("
-    SELECT p.*, c.name as category_name 
-    FROM products p 
-    JOIN categories c ON p.category_id = c.id 
-    ORDER BY p.rating DESC 
-    LIMIT 8
-");
-$stmt->execute();
-$featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch categories
-$stmt = $conn->prepare("SELECT * FROM categories LIMIT 6");
-$stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$featuredStmt = $conn->prepare(
+    'SELECT p.*, c.name AS category_name
+     FROM products p
+     JOIN categories c ON p.category_id = c.id
+     ORDER BY p.rating DESC
+     LIMIT 8'
+);
+$featuredStmt->execute();
+$featuredProducts = $featuredStmt->fetchAll();
+
+$categoriesStmt = $conn->prepare('SELECT * FROM categories LIMIT 6');
+$categoriesStmt->execute();
+$categories = $categoriesStmt->fetchAll();
 ?>
 
-<!-- Hero Section -->
 <section class="mb-12">
     <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-[21/9] flex items-center group">
-        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
+        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
              style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1920');">
             <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
         </div>
@@ -39,10 +36,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php echo t('welcome_subtitle'); ?>
             </p>
             <div class="flex flex-wrap gap-4">
-                <a href="products.php" class="bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-lg font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/25">
+                <a href="<?php echo url('products.php'); ?>" class="bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-lg font-bold transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/25">
                     <?php echo t('shop_now'); ?>
                 </a>
-                <a href="about.php" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-3.5 rounded-lg font-bold transition-all transform hover:scale-105">
+                <a href="<?php echo url('about.php'); ?>" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-3.5 rounded-lg font-bold transition-all transform hover:scale-105">
                     <?php echo t('learn_more'); ?>
                 </a>
             </div>
@@ -50,16 +47,15 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </section>
 
-<!-- Category Grid -->
 <section class="mb-12">
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <?php 
-        $category_icons = ['laptop_mac', 'smartphone', 'headphones', 'watch', 'sports_esports', 'mouse'];
-        foreach ($categories as $index => $category): 
+        <?php
+        $categoryIcons = ['laptop_mac', 'smartphone', 'headphones', 'watch', 'sports_esports', 'mouse'];
+        foreach ($categories as $index => $category):
         ?>
-        <a href="products.php?category=<?php echo $category['id']; ?>" class="flex flex-col items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary transition-all cursor-pointer group">
+        <a href="<?php echo url('products.php?category=' . $category['id']); ?>" class="flex flex-col items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-primary transition-all cursor-pointer group">
             <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                <span class="material-symbols-outlined text-3xl"><?php echo $category_icons[$index] ?? 'devices'; ?></span>
+                <span class="material-symbols-outlined text-3xl"><?php echo $categoryIcons[$index] ?? 'devices'; ?></span>
             </div>
             <span class="text-sm font-semibold"><?php echo htmlspecialchars($category['name']); ?></span>
         </a>
@@ -67,27 +63,24 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </section>
 
-<!-- Featured Products Header -->
 <div class="flex items-center justify-between mb-8">
     <h2 class="text-2xl font-bold text-slate-900 dark:text-white"><?php echo t('featured_products'); ?></h2>
-    <a href="products.php" class="text-primary hover:underline font-medium"><?php echo t('see_all'); ?> →</a>
+    <a href="<?php echo url('products.php'); ?>" class="text-primary hover:underline font-medium"><?php echo t('see_all'); ?> →</a>
 </div>
 
-<!-- Product Grid -->
 <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-    <?php foreach ($featured_products as $product): ?>
-    <!-- Product Card -->
+    <?php foreach ($featuredProducts as $product): ?>
     <div class="product-card group relative bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-xl transition-all duration-300">
-        <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="block">
+        <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="block">
             <div class="aspect-square bg-slate-50 dark:bg-slate-900 p-8 flex items-center justify-center relative overflow-hidden">
                 <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
-                    <button class="p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-slate-600 hover:text-red-500 transition-colors shadow-sm">
+                    <button onclick="event.preventDefault(); addToWishlist(<?php echo (int) $product['id']; ?>);" class="p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-slate-600 hover:text-red-500 transition-colors shadow-sm">
                         <span class="material-symbols-outlined text-xl">favorite</span>
                     </button>
                 </div>
-                <?php if ($product['image_url']): ?>
-                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>" 
-                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                <?php if (!empty($product['image_url'])): ?>
+                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>"
+                         alt="<?php echo htmlspecialchars($product['name']); ?>"
                          class="object-contain transition-transform duration-500 group-hover:scale-110 max-h-full">
                 <?php else: ?>
                     <div class="text-slate-300">
@@ -95,7 +88,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 <?php endif; ?>
                 <div class="cart-button absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 transition-all duration-300">
-                    <button class="w-full bg-primary text-white py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+                    <button onclick="event.preventDefault(); addToCart(<?php echo (int) $product['id']; ?>);" class="w-full bg-primary text-white py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-lg">add_shopping_cart</span> <?php echo t('add_to_cart'); ?>
                     </button>
                 </div>
@@ -104,11 +97,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="p-5">
             <span class="text-[10px] font-bold text-primary tracking-widest uppercase mb-1 block"><?php echo htmlspecialchars($product['category_name']); ?></span>
             <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2 truncate">
-                <a href="product_detail.php?id=<?php echo $product['id']; ?>"><?php echo htmlspecialchars($product['name']); ?></a>
+                <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>"><?php echo htmlspecialchars($product['name']); ?></a>
             </h3>
             <div class="flex items-center gap-1 mb-3">
                 <span class="material-symbols-outlined text-yellow-400 text-sm" style="font-variation-settings: 'FILL' 1">star</span>
-                <span class="text-xs font-bold text-slate-600 dark:text-slate-400"><?php echo number_format($product['rating'], 1); ?></span>
+                <span class="text-xs font-bold text-slate-600 dark:text-slate-400"><?php echo number_format((float) $product['rating'], 1); ?></span>
             </div>
             <div class="flex items-center justify-between">
                 <span class="text-lg font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($product['price']); ?></span>
@@ -118,7 +111,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; ?>
 </section>
 
-<!-- Features Section -->
 <section class="mb-12">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="flex flex-col items-center text-center p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
@@ -133,16 +125,16 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <span class="material-symbols-outlined text-3xl">verified_user</span>
             </div>
             <h4 class="font-bold text-slate-900 dark:text-white mb-2"><?php echo t('secure_payment'); ?></h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400"><?php echo getCurrentLanguage() == 'vi' ? '100% bảo mật thanh toán' : '100% secure payment'; ?></p>
+            <p class="text-sm text-slate-600 dark:text-slate-400"><?php echo getCurrentLanguage() === 'vi' ? '100% bảo mật thanh toán' : '100% secure payment'; ?></p>
         </div>
         <div class="flex flex-col items-center text-center p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
             <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
                 <span class="material-symbols-outlined text-3xl">support_agent</span>
             </div>
             <h4 class="font-bold text-slate-900 dark:text-white mb-2"><?php echo t('customer_support'); ?></h4>
-            <p class="text-sm text-slate-600 dark:text-slate-400"><?php echo getCurrentLanguage() == 'vi' ? 'Hỗ trợ 24/7' : '24/7 support'; ?></p>
+            <p class="text-sm text-slate-600 dark:text-slate-400"><?php echo getCurrentLanguage() === 'vi' ? 'Hỗ trợ 24/7' : '24/7 support'; ?></p>
         </div>
     </div>
 </section>
 
-<?php include 'includes/footer.php'; ?>
+<?php include APP_PATH . '/Views/layouts/footer.php'; ?>

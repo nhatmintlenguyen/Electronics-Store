@@ -7,11 +7,15 @@ from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 from playwright.sync_api import sync_playwright  
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import os 
+import dotenv
+
+dotenv.load_dotenv()
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "electronics_store"
-COLLECTION_NAME = "products"
+MONGO_URI = os.getenv("MONGODB_CONNECTION_STRING")
+DATABASE_NAME = os.getenv("MONGODB_DATABASE")
+COLLECTION_NAME = os.getenv("MONGODB_PRODUCTS_COLLECTION")
 
 WORKERS = 5  # Number of concurrent workers (one worker handles one URL)
 BATCH_SIZE = 10

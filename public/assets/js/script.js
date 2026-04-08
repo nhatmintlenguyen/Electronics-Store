@@ -1,10 +1,13 @@
-// Modern JavaScript for Electronics Store
+function endpointUrl(path) {
+    const base = document.body?.dataset.appBaseUrl || '';
+    const normalizedPath = String(path || '').replace(/^\/+/, '');
+    return base ? `${base}/${normalizedPath}` : `/${normalizedPath}`;
+}
 
-// Dark mode toggle
 function toggleDarkMode() {
     const html = document.documentElement;
     const isDark = html.classList.contains('dark');
-    
+
     if (isDark) {
         html.classList.remove('dark');
         localStorage.setItem('theme', 'light');
@@ -14,15 +17,13 @@ function toggleDarkMode() {
     }
 }
 
-// Initialize theme from localStorage
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
     }
 });
 
-// Format number as Vietnamese currency
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -30,29 +31,26 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-// Show toast notification
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-all transform translate-y-0 opacity-100`;
-    
+    toast.className = 'fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transition-all transform translate-y-0 opacity-100';
+
     const bgColors = {
         success: 'bg-green-500',
         error: 'bg-red-500',
         info: 'bg-blue-500',
         warning: 'bg-yellow-500'
     };
-    
+
     toast.classList.add(bgColors[type] || bgColors.info);
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
-    // Animate in
+
     setTimeout(() => {
         toast.classList.add('fade-in');
     }, 10);
-    
-    // Auto remove after 3 seconds
+
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(1rem)';
@@ -60,19 +58,18 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Add to cart function
 async function addToCart(productId, quantity = 1) {
     try {
-        const response = await fetch('add_to_cart.php', {
+        const response = await fetch(endpointUrl('add_to_cart.php'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: `product_id=${productId}&quantity=${quantity}`
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast(data.message || 'Product added to cart!', 'success');
             updateCartCount(data.cart_count);
@@ -85,7 +82,6 @@ async function addToCart(productId, quantity = 1) {
     }
 }
 
-// Update cart count badge
 function updateCartCount(count) {
     const cartBadges = document.querySelectorAll('[data-cart-count]');
     cartBadges.forEach(badge => {
@@ -98,19 +94,18 @@ function updateCartCount(count) {
     });
 }
 
-// Add to wishlist
 async function addToWishlist(productId) {
     try {
-        const response = await fetch('add_to_wishlist.php', {
+        const response = await fetch(endpointUrl('add_to_wishlist.php'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: `product_id=${productId}`
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showToast(data.message || 'Added to wishlist!', 'success');
         } else {
@@ -122,7 +117,6 @@ async function addToWishlist(productId) {
     }
 }
 
-// Smooth scroll to element
 function smoothScrollTo(elementId) {
     const element = document.getElementById(elementId);
     if (element) {
@@ -130,7 +124,6 @@ function smoothScrollTo(elementId) {
     }
 }
 
-// Debounce function for search
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -143,44 +136,48 @@ function debounce(func, wait) {
     };
 }
 
-// Image lazy loading
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const images = document.querySelectorAll('img[data-src]');
-    
+
+    if (!('IntersectionObserver' in window)) {
+        images.forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+        return;
+    }
+
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const img = entry.target;
                 img.src = img.dataset.src;
                 img.removeAttribute('data-src');
-                imageObserver.unobserve(img);
+                observer.unobserve(img);
             }
         });
     });
-    
+
     images.forEach(img => imageObserver.observe(img));
 });
 
-// Price range slider (if needed)
 function updatePriceRange(minPrice, maxPrice) {
     console.log(`Price range: ${minPrice} - ${maxPrice}`);
-    // Implement your price filter logic here
 }
 
-// Initialize tooltips
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const tooltips = document.querySelectorAll('[data-tooltip]');
     tooltips.forEach(el => {
-        el.addEventListener('mouseenter', function() {
+        el.addEventListener('mouseenter', function () {
             const tooltip = document.createElement('div');
             tooltip.className = 'absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg';
             tooltip.textContent = this.dataset.tooltip;
             document.body.appendChild(tooltip);
-            
+
             const rect = this.getBoundingClientRect();
             tooltip.style.top = `${rect.top - tooltip.offsetHeight - 5}px`;
             tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
-            
+
             this.addEventListener('mouseleave', () => tooltip.remove(), { once: true });
         });
     });
