@@ -1,274 +1,223 @@
-# Electronics Store - Web Programming Project
+# Electronics Store
 
-A full-featured electronics e-commerce website built with PHP and Bootstrap, featuring web scraping from cellphones.com.vn.
+Dynamic PHP/MySQL semester project for the Web Programming course. The codebase has been refactored into an application-style structure with `app/` for shared logic, `public/` for web entry points, `database/` for schema/data assets, and `scripts/` for scraping and data enrichment.
 
-## Features
+## Current Structure
 
-- 🛍️ Product catalog with categories
-- 🔍 Search and filter functionality
-- 👤 User authentication (Admin & Customer roles)
-- 📍 Multiple store locations with Google Maps integration
-- 📊 Product availability tracking across locations
-- 🎨 Responsive design with Bootstrap 5
-- 🔒 Secure password hashing
-
-## Technology Stack
-
-- **Backend**: PHP 7.4+
-- **Database**: MySQL/MariaDB
-- **Frontend**: Bootstrap 5, HTML5, CSS3, JavaScript
-- **Web Scraping**: Python (BeautifulSoup, Requests)
-
-## Project Structure
-
-```
+```text
 electronics_store/
-├── admin/                  # Admin dashboard files
-├── assets/
-│   ├── css/               # Custom stylesheets
-│   ├── js/                # Custom JavaScript
-│   └── images/            # Image assets
-├── includes/
-│   ├── config.php         # Database configuration
-│   ├── functions.php      # Helper functions
-│   ├── header.php         # Header template
-│   └── footer.php         # Footer template
-├── public/                # Public assets
-├── database_setup.sql     # Database schema
-├── insert_data.py         # Data insertion script
-├── scraper_enhanced.py    # Web scraper
-└── *.php                  # Main application files
+├── app/
+│   ├── bootstrap.php
+│   ├── Config/
+│   │   └── app.php
+│   ├── Support/
+│   │   ├── helpers.php
+│   │   └── language.php
+│   └── Views/
+│       └── layouts/
+│           ├── footer.php
+│           └── header.php
+├── public/
+│   ├── index.php
+│   ├── products.php
+│   ├── product_detail.php
+│   ├── login.php
+│   ├── logout.php
+│   ├── locations.php
+│   └── assets/
+│       ├── css/style.css
+│       └── js/script.js
+├── database/
+│   └── schema/
+│       └── database_setup.sql
+├── scripts/
+│   ├── scraper_enhanced.py
+│   ├── insert_data.py
+│   ├── enrich_fields.py
+│   ├── main.py
+│   └── setup.sh
+├── resources/
+├── storage/
+├── pyproject.toml
+├── requirements.txt
+└── SemesterProject.pdf
 ```
 
-## Installation & Setup
+## Tech Stack
 
-### Prerequisites
+- PHP 8+
+- MySQL / MariaDB
+- HTML, CSS, JavaScript
+- Tailwind CDN for UI styling
+- Python for scraping and data enrichment
 
-- PHP 7.4 or higher
-- MySQL/MariaDB
-- Python 3.7+ (for web scraping)
-- Apache/Nginx web server
-- Composer (optional)
+## Features Present In The Current Version
 
-### Step 1: Database Setup
+- Product catalog from MySQL
+- Product sorting and category filtering
+- Product detail page with breadcrumbs
+- Shared app bootstrap and helper layer
+- Multi-language support scaffold (`vi` / `en`)
+- Store locations page
+- Python scraping pipeline
+- Product field enrichment script
 
-1. Create a new MySQL database:
+## Prerequisites
+
+- PHP 8.0+
+- MySQL / MariaDB
+- Python 3.10+ recommended
+
+## Database Setup
+
+Create the database:
+
 ```sql
 CREATE DATABASE electronics_store;
 ```
 
-2. Import the database schema:
+Import the schema:
+
 ```bash
-mysql -u root -p electronics_store < database_setup.sql
+mysql -u root -p electronics_store < database/schema/database_setup.sql
 ```
 
-Or use phpMyAdmin to import `database_setup.sql`.
+## Application Configuration
 
-### Step 2: Configure Database Connection
+Edit database credentials in [app/Config/app.php](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/app/Config/app.php):
 
-Edit the database credentials in two files:
-
-**File: `includes/config.php`**
 ```php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'your_mysql_username');
-define('DB_PASS', 'your_mysql_password');
-define('DB_NAME', 'electronics_store');
+const DB_HOST = 'localhost';
+const DB_USER = 'root';
+const DB_PASS = '';
+const DB_NAME = 'electronics_store';
 ```
 
-**File: `insert_data.py`**
-```python
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'your_mysql_username',
-    'password': 'your_mysql_password',
-    'database': 'electronics_store'
-}
-```
+If your Python scripts connect to MySQL directly, also update credentials in:
 
-### Step 3: Install Python Dependencies
+- [scripts/insert_data.py](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/scripts/insert_data.py)
+- [scripts/enrich_fields.py](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/scripts/enrich_fields.py)
+
+## Python Environment
 
 ```bash
-# Create virtual environment (optional but recommended)
 python3 -m venv .venv
-source .venv/bin/activate  # On Linux/Mac
-# .venv\Scripts\activate  # On Windows
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-# Install required packages
+If `requirements.txt` is incomplete in your local copy, install the needed packages manually, for example:
+
+```bash
 pip install requests beautifulsoup4 mysql-connector-python
 ```
 
-### Step 4: Scrape Data from cellphones.com.vn
+## Data Pipeline
+
+Scrape source product data:
 
 ```bash
-python scraper_enhanced.py
+python scripts/scraper_enhanced.py
 ```
 
-This will:
-- Scrape product data from cellphones.com.vn
-- Save data to `scraped_data.json`
-- Scrape 12 products across 5 categories
-
-### Step 5: Insert Data into Database
+Insert data into MySQL:
 
 ```bash
-python insert_data.py
+python scripts/insert_data.py
 ```
 
-This will populate your database with:
-- ✅ 5 Categories (Smartphones, Laptops, Tablets, Audio, Accessories)
-- ✅ 12 Products (from scraped data or defaults)
-- ✅ 3 Store Locations with Google Maps links
-- ✅ 2 Users (admin and customer)
-- ✅ Product availability records
+Enrich product metadata and availability fields:
 
-### Step 6: Configure Web Server
-
-**Option A: Using PHP Built-in Server (Development)**
 ```bash
-cd /path/to/electronics_store
+python scripts/enrich_fields.py
+```
+
+`scraper_enhanced.py` is intentionally kept as part of the project.
+
+## Run The Website Locally
+
+This project now uses `public/` as the web document root.
+
+Preferred command:
+
+```bash
+php -S localhost:8000 -t public
+```
+
+Then open:
+
+- `http://localhost:8000/`
+- `http://localhost:8000/products.php`
+- `http://localhost:8000/product_detail.php?id=1`
+- `http://localhost:8000/login.php`
+- `http://localhost:8000/locations.php`
+
+## Why You Got `Not Found` For `/products.php`
+
+If you started the server like this:
+
+```bash
 php -S localhost:8000
 ```
 
-Then visit: http://localhost:8000
+then PHP served the repository root, but `products.php` is no longer in the root directory. It was moved to `public/products.php` during the refactor.
 
-**Option B: Using Apache**
+That means:
 
-1. Copy project to Apache document root:
-```bash
-sudo cp -r electronics_store /var/www/html/
-```
+- `http://localhost:8000/products.php` will fail when serving the repo root
+- `http://localhost:8000/public/products.php` may work in that setup
+- the correct setup is still to run `php -S localhost:8000 -t public`
 
-2. Configure virtual host (optional):
+## Apache / Nginx Note
+
+If you use Apache or Nginx, point the document root to the `public/` folder, not the repository root.
+
+Example Apache `DocumentRoot`:
+
 ```apache
-<VirtualHost *:80>
-    ServerName electronics-store.local
-    DocumentRoot /var/www/html/electronics_store
-    
-    <Directory /var/www/html/electronics_store>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
+DocumentRoot /path/to/electronics_store/public
 ```
 
-3. Restart Apache:
-```bash
-sudo systemctl restart apache2
-```
+## Important Current Limitation
 
-## Default Login Credentials
-
-### Admin Account
-- **Username**: `admin`
-- **Password**: `password123`
-
-### Customer Account
-- **Username**: `customer1`
-- **Password**: `password123`
-
-## Database Schema
-
-### Tables
-
-1. **users** - User accounts (admin & customers)
-2. **categories** - Product categories
-3. **products** - Product information
-4. **locations** - Store locations
-5. **product_availability** - Product stock per location
-6. **orders** - Customer orders
-7. **order_items** - Order line items
-
-### Relationships
-
-- Products → Categories (Many-to-One)
-- Products → Locations (Many-to-Many via product_availability)
-- Orders → Users (Many-to-One)
-- Order Items → Orders (Many-to-One)
-- Order Items → Products (Many-to-One)
-
-## Key Features Explanation
-
-### Web Scraping
-The `scraper_enhanced.py` script:
-- Scrapes real product data from cellphones.com.vn
-- Falls back to sample data if scraping fails
-- Respects website with delays between requests
-- Extracts: names, prices, ratings, descriptions, images
-
-### User Roles
-- **Admin**: Full access to admin dashboard, manage products, orders, users
-- **Customer**: Browse products, place orders, manage profile
-
-### Product Availability
-- Tracks stock levels across multiple store locations
-- Shows which products are available at which stores
-- Allows customers to check stock before visiting
+The project structure has been refactored, but some pages and features are still being aligned to the new structure. If a page throws include/path errors, it means that route still needs to be updated to the new `app/` bootstrap flow.
 
 ## Troubleshooting
 
-### Issue: "Connection failed: Access denied"
-**Solution**: Check database credentials in `includes/config.php` and `insert_data.py`
+### `Not Found: /products.php`
 
-### Issue: "Table doesn't exist"
-**Solution**: Run `database_setup.sql` to create tables first
-
-### Issue: Python packages not found
-**Solution**: Activate virtual environment and install packages:
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt  # or install individually
-```
-
-### Issue: Web scraper returns empty data
-**Solution**: The script automatically falls back to sample data if scraping fails. This is normal and expected.
-
-## Development Notes
-
-### Adding New Features
-
-1. **New PHP pages**: Create in root directory, include header/footer
-2. **New styles**: Add to `assets/css/style.css`
-3. **New JavaScript**: Add to `assets/js/script.js`
-4. **Database changes**: Update `database_setup.sql` and migration scripts
-
-### File Permissions (Linux)
+Use:
 
 ```bash
-# Make sure web server can read files
-sudo chown -R www-data:www-data electronics_store/
-sudo chmod -R 755 electronics_store/
-
-# If you need to upload images
-sudo chmod -R 777 electronics_store/assets/images/
+php -S localhost:8000 -t public
 ```
 
-## API Endpoints (Future Enhancement)
+### Database connection failed
 
-The project structure supports adding REST API endpoints:
-- `api/products.php` - Product CRUD operations
-- `api/cart.php` - Shopping cart management
-- `api/orders.php` - Order processing
+Check:
 
-## Security Considerations
+- MySQL is running
+- the `electronics_store` database exists
+- credentials in `app/Config/app.php` are correct
 
-- ✅ Password hashing with SHA-256
-- ✅ SQL injection prevention (PDO prepared statements)
-- ✅ XSS protection (htmlspecialchars)
-- ✅ Input sanitization
-- ✅ Session management
-- ⚠️ For production: Use bcrypt instead of SHA-256, add HTTPS, implement CSRF tokens
+### Python script cannot connect to MySQL
 
-## License
+Make sure the Python-side DB config matches your local MySQL credentials.
 
-This project is for educational purposes (University Semester 6 - Web Programming).
+### CSS or JS not loading
 
-## Support
+Confirm you are serving from `public/` as the document root. The asset files are under:
 
-For issues or questions, please refer to the assignment documentation or contact your instructor.
+- `public/assets/css/style.css`
+- `public/assets/js/script.js`
 
----
+## Suggested Git Workflow
 
-**Created for**: University Semester 6 - Web Programming Course  
-**Topic**: Electronics Store E-commerce Website
+After verifying the local app works with the `public/` document root:
+
+```bash
+git status
+git add -A
+git commit -m "Update README for refactored public app structure"
+git push origin <your-branch>
+```
