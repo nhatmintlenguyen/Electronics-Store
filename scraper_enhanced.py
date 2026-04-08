@@ -3,22 +3,32 @@ from bs4 import BeautifulSoup
 import json
 import time
 import random
-import re
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 from datetime import datetime
 from playwright.sync_api import sync_playwright  
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # MongoDB Configuration
 MONGO_URI = "mongodb://localhost:27017/"
 DATABASE_NAME = "electronics_store"
 COLLECTION_NAME = "products"
 
+WORKERS = 5  # Number of concurrent workers (one worker handles one URL)
+BATCH_SIZE = 10
+
+# Network/Render Timeout Configuration
+HTTP_CONNECT_TIMEOUT = 10
+HTTP_READ_TIMEOUT = 30
+PAGE_GOTO_TIMEOUT_MS = 90000
+PAGE_NETWORK_IDLE_TIMEOUT_MS = 15000
+PAGE_PRODUCT_WAIT_TIMEOUT_MS = 20000
+SHOW_MORE_WAIT_TIMEOUT_MS = 6000
+
 # Product Schema Definition
 PRODUCT_SCHEMA = {
     'name': '',                    # Product name
     'url': '',                     # Product detail page URL
     'image': '',                   # Product image URL
-    'images': [],                  # All product gallery image URLs
     'price': 0,                    # Price as integer (VND)
     'price_display': '',           # Formatted price string (e.g., "10.000.000đ")
     'rating': 0.0,                 # Product rating (float)
@@ -35,7 +45,6 @@ def create_empty_product():
         'name': '',
         'url': '',
         'image': '',
-        'images': [],
         'price': 0,
         'price_display': '',
         'rating': 0.0,
@@ -64,7 +73,7 @@ URL_LIST = [
     "https://cellphones.com.vn/laptop/dell.html",
     "https://cellphones.com.vn/laptop/mac.html",
     "https://cellphones.com.vn/laptop/hp.html",
-    "https://cellphones.com.vn/tablet/msi.html",
+    "https://cellphones.com.vn/laptop/msi.html",
     "https://cellphones.com.vn/laptop/asus.html", 
     "https://cellphones.com.vn/laptop/lenovo.html",
 
@@ -108,18 +117,50 @@ def get_mongo_connection():
         print(f"✗ MongoDB connection error: {e}")
         return None
 
-def fetch_page(url):
-    """Fetch the content of a web page with proper headers."""
+def fetch_page(url, max_retries=3, base_delay=1.0):
+    """Fetch page content with retry/backoff to avoid failing when requests are too fast."""
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.text
-    except Exception as e:
-        print(f"✗ Error fetching {url}: {e}")
-        return None
+    last_error = None
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=(HTTP_CONNECT_TIMEOUT, HTTP_READ_TIMEOUT)
+            )
+
+            # Rate limit or temporary server issues -> retry
+            if response.status_code in (429, 500, 502, 503, 504):
+                retry_after = response.headers.get('Retry-After')
+                if retry_after and retry_after.isdigit():
+                    wait_time = float(retry_after)
+                else:
+                    # Exponential backoff + random jitter
+                    wait_time = base_delay * (2 ** (attempt - 1)) + random.uniform(0.2, 0.8)
+
+                if attempt < max_retries:
+                    print(f"⚠ Request throttled/temporary error ({response.status_code}) for {url}. Retrying in {wait_time:.2f}s ({attempt}/{max_retries})...")
+                    time.sleep(wait_time)
+                    continue
+
+            response.raise_for_status()
+            return response.text
+
+        except requests.exceptions.RequestException as e:
+            last_error = e
+            if attempt < max_retries:
+                wait_time = base_delay * (2 ** (attempt - 1)) + random.uniform(0.2, 0.8)
+                print(f"⚠ Error fetching {url}: {e}. Retrying in {wait_time:.2f}s ({attempt}/{max_retries})...")
+                time.sleep(wait_time)
+            else:
+                print(f"✗ Error fetching {url} after {max_retries} attempts: {e}")
+
+    if last_error:
+        print(f"✗ Final fetch failure for {url}: {last_error}")
+    return None
 
 
 def fetch_page_with_load_more(url, target_products=20, max_clicks=10):
@@ -129,9 +170,18 @@ def fetch_page_with_load_more(url, target_products=20, max_clicks=10):
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(viewport={"width": 1366, "height": 900})
 
-            page.goto(url, wait_until='domcontentloaded', timeout=60000)
+            page.goto(url, wait_until='domcontentloaded', timeout=PAGE_GOTO_TIMEOUT_MS)
             try:
-                page.wait_for_load_state('networkidle', timeout=5000)
+                page.wait_for_load_state('networkidle', timeout=PAGE_NETWORK_IDLE_TIMEOUT_MS)
+            except Exception:
+                pass
+
+            # Wait for product grid to render on slower responses
+            try:
+                page.wait_for_selector(
+                    'div.product-info-container.product-item',
+                    timeout=PAGE_PRODUCT_WAIT_TIMEOUT_MS
+                )
             except Exception:
                 pass
 
@@ -158,7 +208,7 @@ def fetch_page_with_load_more(url, target_products=20, max_clicks=10):
                             return count > previousCount || !hasShowMore;
                         }""",
                         arg=current_count,
-                        timeout=3000,
+                        timeout=SHOW_MORE_WAIT_TIMEOUT_MS,
                     )
                 except Exception:
                     # If waiting condition is not met quickly, continue without blocking
@@ -180,13 +230,12 @@ def extract_technical_specs(product_url):
     
     content = fetch_page(product_url)
     if not content:
-        return {}, "", []
+        return {}, ""
     
     soup = BeautifulSoup(content, 'html.parser')
     
     overview_specs = {}
     product_container = ""
-    gallery_images = []
     
     # Find technical specifications table
     tech_table = soup.find('table', class_='technical-content')
@@ -206,50 +255,7 @@ def extract_technical_specs(product_url):
     else: 
         product_container = ""
 
-    # Extract gallery images from product gallery slider
-    # 1) find div.swiper-wrapper
-    # 2) inside it, find children div.swiper-slide.button__view-gallery (visible or not)
-    # 3) each slide should contain one img
-    image_ext_pattern = re.compile(r'\.(jpg|jpeg|png|webp|avif|gif|bmp|svg)(\?.*)?$', re.IGNORECASE)
-    seen = set()
-
-    wrappers = soup.select('div.swiper-wrapper')
-    print(wrappers)
-    best_wrapper = None
-    best_count = 0
-
-    # Choose wrapper that most likely contains the real product gallery
-    for wrapper in wrappers:
-        slide_count = len(wrapper.select('div.swiper-slide.button__view-gallery'))
-        if slide_count > best_count:
-            best_count = slide_count
-            best_wrapper = wrapper
-
-    if best_wrapper:
-        slide_divs = best_wrapper.select('div.swiper-slide.button__view-gallery')
-        for slide in slide_divs:
-            img = slide.find('img')
-            if not img:
-                continue
-
-            src = (img.get('src') or img.get('data-src') or '').strip()
-            if not src:
-                continue
-
-            if not image_ext_pattern.search(src):
-                continue
-
-            if src not in seen:
-                seen.add(src)
-                gallery_images.append(src)
-
-    # Fallback to the main product image if gallery is not found
-    if not gallery_images:
-        og_image = soup.find('meta', property='og:image')
-        if og_image and og_image.get('content'):
-            gallery_images.append(og_image.get('content').strip())
-    
-    return overview_specs, product_container, gallery_images
+    return overview_specs, product_container
 
 
 def scrape_product_from_item(item):
@@ -303,7 +309,7 @@ def scrape_product_from_item(item):
         
         # Fetch technical specifications from detail page
         if product_url:
-            product_data['technical_specs'], product_data['product_container'], product_data['images'] = extract_technical_specs(product_url)
+            product_data['technical_specs'], product_data['product_container'] = extract_technical_specs(product_url)
         
         return product_data
         
@@ -328,9 +334,16 @@ def scrape_products_from_url(url, max_products=10):
     initial_count = len(soup.find_all('div', class_='product-info-container product-item'))
 
     # max_products <= 0 means scrape all available products
-    should_use_headless = has_show_more_button and (max_products <= 0 or initial_count < max_products)
+    # Also force headless fallback when static HTML returns zero products (slow/dynamic page render).
+    should_use_headless = (
+        initial_count == 0
+        or (has_show_more_button and (max_products <= 0 or initial_count < max_products))
+    )
     if should_use_headless:
-        print("Detected 'Xem thêm sản phẩm' button. Using headless browser to load more products...")
+        if initial_count == 0:
+            print("Static HTML returned 0 products. Retrying with headless browser rendering...")
+        else:
+            print("Detected 'Xem thêm sản phẩm' button. Using headless browser to load more products...")
         target_products = max_products if max_products > 0 else 9999
         enhanced_content = fetch_page_with_load_more(url, target_products=target_products)
         if enhanced_content:
@@ -356,14 +369,10 @@ def scrape_products_from_url(url, max_products=10):
             product_data['scraped_at'] = datetime.now().isoformat()
             
             products.append(product_data)
-            print(f"  ✓ {product_data.get('name', 'Unknown')[:60]}...")
-            print(f"    Price: {product_data.get('price_display', 'N/A')}")
-            print(f"    Rating: {product_data.get('rating', 'N/A')}")
-            print(f"    Specs: {len(product_data.get('technical_specs', {}))} fields")
     return products
 
 def save_to_mongodb(products, collection):
-    """Save products to MongoDB."""
+    """Bulk upsert products to MongoDB by product URL."""
     if collection is None:
         print("✗ No MongoDB collection available")
         return 0
@@ -373,14 +382,58 @@ def save_to_mongodb(products, collection):
         return 0
     
     try:
-        # Insert products into MongoDB
-        result = collection.insert_many(products)
-        inserted_count = len(result.inserted_ids)
-        print(f"\n✓ Inserted {inserted_count} products into MongoDB")
-        return inserted_count
+        operations = []
+        for product in products:
+            product_url = product.get('url', '').strip()
+            if not product_url:
+                continue
+
+            operations.append(
+                UpdateOne(
+                    {'url': product_url},
+                    {'$set': product},
+                    upsert=True
+                )
+            )
+
+        if not operations:
+            print("✗ No valid products with URL to upsert")
+            return 0
+
+        total_upserted = 0
+        total_modified = 0
+
+        # Write in chunks to avoid huge bulk payloads
+        for i in range(0, len(operations), BATCH_SIZE):
+            chunk = operations[i:i + BATCH_SIZE]
+            result = collection.bulk_write(chunk, ordered=False)
+            total_upserted += result.upserted_count
+            total_modified += result.modified_count
+
+        total_changed = total_upserted + total_modified
+        print(f"\n✓ Bulk upsert complete: upserted={total_upserted}, modified={total_modified}, total_changed={total_changed}")
+        return total_changed
     except Exception as e:
         print(f"✗ Error saving to MongoDB: {e}")
         return 0
+
+
+def scrape_and_upsert_url(url, max_products, collection, worker_label):
+    """Worker task: scrape one URL and bulk upsert its products."""
+    print(f"\n\n{'█'*70}")
+    print(f"  [{worker_label}] Processing URL")
+    print('█'*70)
+
+    products = scrape_products_from_url(url, max_products)
+    changed_count = 0
+
+    if products and collection is not None:
+        changed_count = save_to_mongodb(products, collection)
+
+    print(f"\n  → Worker [{worker_label}] scraped {len(products)} products")
+    print(f"  → Worker [{worker_label}] upserted/modified {changed_count} products")
+
+    return url, products, changed_count
 
 def main():
     """Main scraping function with MongoDB storage."""
@@ -390,32 +443,39 @@ def main():
     
     # Connect to MongoDB
     collection = get_mongo_connection()
+
+    if collection is not None:
+        # Ensure fast upsert lookup and uniqueness by URL
+        collection.create_index('url', unique=True)
     
-    # Ask user for products per URL
-    try:
-        max_products = int(input("\nHow many products to scrape per URL? (default: 5, enter 0 for all): ") or "5")
-    except:
-        max_products = 5
-    
+    MAX_PRODUCTS = 40
+
     all_products = []
     total_scraped = 0
-    
-    # Scrape from each URL
-    for idx, url in enumerate(URL_LIST, 1):
-        print(f"\n\n{'█'*70}")
-        print(f"  [{idx}/{len(URL_LIST)}] Processing URL")
-        print('█'*70)
-        
-        products = scrape_products_from_url(url, max_products)
-        all_products.extend(products)
-        total_scraped += len(products)
-        
-        print(f"\n  → Scraped {len(products)} products from this URL")
-        print(f"  → Total so far: {total_scraped} products")
-        
-        # Save to MongoDB after each URL (incremental save)
-        if products and collection is not None:
-            save_to_mongodb(products, collection)
+    total_changed = 0
+
+    # Concurrent scraping: each worker handles one URL
+    max_workers = min(WORKERS, len(URL_LIST))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_url = {}
+        for idx, url in enumerate(URL_LIST, 1):
+            worker_label = f"{idx}/{len(URL_LIST)}"
+            future = executor.submit(scrape_and_upsert_url, url, MAX_PRODUCTS, collection, worker_label)
+            future_to_url[future] = url
+
+        for future in as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                _, products, changed_count = future.result()
+                all_products.extend(products)
+                total_scraped += len(products)
+                total_changed += changed_count
+
+                print(f"\n  → Completed URL: {url}")
+                print(f"  → Total scraped so far: {total_scraped} products")
+                print(f"  → Total upserted/modified so far: {total_changed} products")
+            except Exception as e:
+                print(f"✗ Worker failed for {url}: {e}")
     
     # Save to JSON as backup (remove MongoDB ObjectId fields)
     products_for_json = []
@@ -441,6 +501,7 @@ def main():
     print("  SCRAPING COMPLETE!")
     print("="*70)
     print(f"  Total products scraped: {len(all_products)}")
+    print(f"  Total products upserted/modified: {total_changed}")
     print(f"  Saved to MongoDB: {DATABASE_NAME}.{COLLECTION_NAME}")
     print(f"  Backup JSON file: {json_file}")
     print("="*70)
