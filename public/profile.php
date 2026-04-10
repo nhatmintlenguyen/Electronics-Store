@@ -4,9 +4,7 @@ require_once __DIR__ . '/../app/bootstrap.php';
 requireLogin();
 
 $page_title = t('profile');
-$page_description = getCurrentLanguage() === 'vi'
-    ? 'Thong tin tai khoan nguoi dung dang nhap tai TechStore.'
-    : 'Signed-in customer account profile for TechStore.';
+$page_description = 'Thông tin tài khoản người dùng đang đăng nhập tại TechStore.';
 
 $conn = getDBConnection();
 $stmt = $conn->prepare('SELECT id, username, email, full_name, role, created_at FROM users WHERE id = :id LIMIT 1');
@@ -41,7 +39,7 @@ include APP_PATH . '/Views/layouts/header.php';
             <p class="mt-2 text-sm font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($user['email']); ?></p>
         </div>
         <div class="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Role</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Vai trò</p>
             <p class="mt-2 text-sm font-semibold capitalize text-slate-900 dark:text-white"><?php echo htmlspecialchars($user['role']); ?></p>
         </div>
     </div>

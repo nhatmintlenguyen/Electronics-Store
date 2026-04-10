@@ -2,9 +2,7 @@
 require_once __DIR__ . '/../app/bootstrap.php';
 
 $page_title = t('wishlist');
-$page_description = getCurrentLanguage() === 'vi'
-    ? 'Danh sach san pham yeu thich duoc luu tam trong phien lam viec.'
-    : 'Session-based wishlist saved temporarily for the current visitor.';
+$page_description = 'Danh sách sản phẩm yêu thích được lưu tạm trong phiên làm việc.';
 
 $wishlistIds = array_values(array_unique(array_map('intval', $_SESSION['wishlist'] ?? [])));
 $wishlistProducts = [];
@@ -29,9 +27,7 @@ include APP_PATH . '/Views/layouts/header.php';
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('wishlist'); ?></h1>
     <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
-        <?php echo getCurrentLanguage() === 'vi'
-            ? 'Danh sach san pham ban da luu trong phien hien tai.'
-            : 'Products saved to your wishlist in the current session.'; ?>
+        Danh sách sản phẩm bạn đã lưu trong phiên hiện tại.
     </p>
 </section>
 
@@ -60,7 +56,7 @@ include APP_PATH . '/Views/layouts/header.php';
     </section>
 <?php else: ?>
     <section class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white"><?php echo getCurrentLanguage() === 'vi' ? 'Chua co san pham yeu thich' : 'No wishlist products yet'; ?></h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Chưa có sản phẩm yêu thích</h2>
     </section>
 <?php endif; ?>
 

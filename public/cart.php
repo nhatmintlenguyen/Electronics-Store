@@ -2,9 +2,7 @@
 require_once __DIR__ . '/../app/bootstrap.php';
 
 $page_title = t('cart');
-$page_description = getCurrentLanguage() === 'vi'
-    ? 'Gio hang luu trong session voi danh sach san pham da chon.'
-    : 'Session-based shopping cart showing currently selected products.';
+$page_description = 'Giỏ hàng lưu trong session với danh sách sản phẩm đã chọn.';
 
 $cart = $_SESSION['cart'] ?? [];
 $cartItems = [];
@@ -44,9 +42,7 @@ include APP_PATH . '/Views/layouts/header.php';
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('cart'); ?></h1>
     <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
-        <?php echo getCurrentLanguage() === 'vi'
-            ? 'Gio hang hien tai duoc luu trong session de phuc vu demo do an.'
-            : 'The current cart is stored in the session for the project demo flow.'; ?>
+        Giỏ hàng hiện tại được lưu trong session để phục vụ demo đồ án.
     </p>
 </section>
 
@@ -65,7 +61,7 @@ include APP_PATH . '/Views/layouts/header.php';
                     <div class="min-w-0 flex-1">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-primary"><?php echo htmlspecialchars($product['category_name']); ?></p>
                         <h2 class="mt-1 text-sm font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($product['name']); ?></h2>
-                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400"><?php echo getCurrentLanguage() === 'vi' ? 'So luong' : 'Quantity'; ?>: <?php echo $item['quantity']; ?></p>
+                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Số lượng: <?php echo $item['quantity']; ?></p>
                         <p class="mt-2 text-lg font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($item['line_total']); ?></p>
                     </div>
                 </article>
@@ -75,14 +71,14 @@ include APP_PATH . '/Views/layouts/header.php';
         <aside class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-xl font-bold text-slate-900 dark:text-white"><?php echo t('checkout'); ?></h2>
             <div class="mt-5 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-                <span><?php echo getCurrentLanguage() === 'vi' ? 'Tong cong' : 'Total'; ?></span>
+                <span>Tổng cộng</span>
                 <span class="text-xl font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($cartTotal); ?></span>
             </div>
         </aside>
     </section>
 <?php else: ?>
     <section class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white"><?php echo getCurrentLanguage() === 'vi' ? 'Gio hang dang trong' : 'Your cart is empty'; ?></h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Giỏ hàng đang trống</h2>
     </section>
 <?php endif; ?>
 

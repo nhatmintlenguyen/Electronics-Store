@@ -71,14 +71,14 @@ async function addToCart(productId, quantity = 1) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(data.message || 'Product added to cart!', 'success');
+            showToast(data.message || 'Đã thêm sản phẩm vào giỏ hàng.', 'success');
             updateCartCount(data.cart_count);
         } else {
-            showToast(data.message || 'Failed to add product to cart', 'error');
+            showToast(data.message || 'Không thể thêm sản phẩm vào giỏ hàng.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('An error occurred', 'error');
+        showToast('Đã xảy ra lỗi.', 'error');
     }
 }
 
@@ -107,13 +107,13 @@ async function addToWishlist(productId) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(data.message || 'Added to wishlist!', 'success');
+            showToast(data.message || 'Đã thêm vào yêu thích.', 'success');
         } else {
-            showToast(data.message || 'Failed to add to wishlist', 'error');
+            showToast(data.message || 'Không thể thêm vào yêu thích.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('An error occurred', 'error');
+        showToast('Đã xảy ra lỗi.', 'error');
     }
 }
 
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!products.length) {
             searchResultsList.innerHTML = `
                 <div class="px-4 py-5 text-sm text-slate-500 dark:text-slate-400">
-                    No products found for "<span class="font-semibold">${escapeHtml(query)}</span>".
+                    Không tìm thấy sản phẩm cho "<span class="font-semibold">${escapeHtml(query)}</span>".
                 </div>
             `;
             showSearchResults();
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (!response.ok) {
-                throw new Error(`Search request failed with status ${response.status}`);
+                throw new Error(`Yêu cầu tìm kiếm thất bại với mã ${response.status}`);
             }
 
             const data = await response.json();
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Search error:', error);
             searchResultsList.innerHTML = `
                 <div class="px-4 py-5 text-sm text-red-500">
-                    Unable to load search results.
+                    Không thể tải kết quả tìm kiếm.
                 </div>
             `;
             showSearchResults();
@@ -530,10 +530,8 @@ function renderProductCard(product, language = 'vi') {
 }
 
 function renderEmptyProducts(language = 'vi') {
-    const title = language === 'vi' ? 'Khong co san pham trong danh muc nay' : 'No products found in this category';
-    const description = language === 'vi'
-        ? 'Hay thu chon mot danh muc khac.'
-        : 'Try selecting a different category.';
+    const title = 'Không có sản phẩm trong danh mục này';
+    const description = 'Hãy thử chọn một danh mục khác.';
 
     return `
         <div class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
@@ -548,7 +546,7 @@ function renderCategoryPagination({ currentPage = 1, totalPages = 1, language = 
         return '';
     }
 
-    const prevLabel = language === 'vi' ? 'Truoc' : 'Previous';
+    const prevLabel = language === 'vi' ? 'Trước' : 'Previous';
     const nextLabel = language === 'vi' ? 'Sau' : 'Next';
     const range = 2;
     const startPage = Math.max(1, currentPage - range);

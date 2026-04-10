@@ -64,3 +64,93 @@ function verifyPassword(string $password, string $hash): bool
 {
     return hash('sha256', $password) === $hash;
 }
+
+function normalizeProductDescriptionHtml(?string $html): string
+{
+    $html = trim((string) $html);
+
+    if ($html === '') {
+        return '';
+    }
+
+    if (!class_exists('DOMDocument')) {
+        $html = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html) ?? $html;
+        $html = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $html) ?? $html;
+        $html = preg_replace('/<noscript\b[^>]*>.*?<\/noscript>/is', '', $html) ?? $html;
+        $html = preg_replace('/<div[^>]*class="[^"]*(?:block-content-product-right|cps-block-boxProductTvc|cps-block-content_btn-showmore)[^"]*"[^>]*>.*?<\/div>/is', '', $html) ?? $html;
+        $html = preg_replace('/\sstyle="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\s(?:format|provider|loading|id|class)="[^"]*"/i', '', $html) ?? $html;
+
+        return trim((string) strip_tags(
+            $html,
+            '<p><br><ul><ol><li><strong><b><em><i><u><a><h1><h2><h3><h4><h5><h6><table><thead><tbody><tr><th><td><div><span><img>'
+        ));
+    }
+
+    $previousUseInternalErrors = libxml_use_internal_errors(true);
+    $document = new DOMDocument('1.0', 'UTF-8');
+    $wrappedHtml = '<?xml encoding="utf-8" ?><div id="product-description-root">' . $html . '</div>';
+    $document->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $xpath = new DOMXPath($document);
+
+    foreach ([
+        '//script',
+        '//style',
+        '//noscript',
+        '//*[@style[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "display:none")]]',
+        '//*[contains(@class, "cps-block-content_btn-showmore")]',
+        '//*[contains(@class, "block-content-product-right")]',
+        '//*[contains(@class, "cps-block-boxProductTvc")]',
+        '//*[@id="cpsContent" and @style]',
+        '//*[@class and contains(@class, "ksp-content")]',
+    ] as $query) {
+        $nodes = $xpath->query($query);
+        if ($nodes instanceof DOMNodeList) {
+            for ($index = $nodes->length - 1; $index >= 0; $index -= 1) {
+                $node = $nodes->item($index);
+                if ($node !== null && $node->parentNode !== null) {
+                    $node->parentNode->removeChild($node);
+                }
+            }
+        }
+    }
+
+    $allowedAttributes = ['href', 'src', 'alt', 'title', 'target', 'rel', 'colspan', 'rowspan'];
+    $nodes = $xpath->query('//*');
+    if ($nodes instanceof DOMNodeList) {
+        foreach ($nodes as $node) {
+            if (!$node instanceof DOMElement) {
+                continue;
+            }
+
+            for ($index = $node->attributes->length - 1; $index >= 0; $index -= 1) {
+                $attribute = $node->attributes->item($index);
+                if ($attribute === null) {
+                    continue;
+                }
+
+                if (!in_array($attribute->name, $allowedAttributes, true)) {
+                    $node->removeAttribute($attribute->name);
+                }
+            }
+
+            if ($node->tagName === 'a' && $node->getAttribute('target') === '_blank' && !$node->hasAttribute('rel')) {
+                $node->setAttribute('rel', 'noopener noreferrer');
+            }
+        }
+    }
+
+    $root = $document->getElementById('product-description-root');
+    $normalizedHtml = '';
+
+    if ($root instanceof DOMElement) {
+        foreach ($root->childNodes as $childNode) {
+            $normalizedHtml .= $document->saveHTML($childNode);
+        }
+    }
+
+    libxml_clear_errors();
+    libxml_use_internal_errors($previousUseInternalErrors);
+
+    return trim($normalizedHtml);
+}

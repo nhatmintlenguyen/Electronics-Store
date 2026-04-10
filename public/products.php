@@ -10,9 +10,7 @@ $currentPage = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 12;
 
 $page_title = t('products');
-$page_description = getCurrentLanguage() === 'vi'
-    ? 'Danh muc san pham TechStore voi bo loc, sap xep va phan trang.'
-    : 'Browse the TechStore catalog with filters, sorting, and pagination.';
+$page_description = 'Danh mục sản phẩm TechStore với bộ lọc, sắp xếp và phân trang.';
 
 $baseQuery =
     'FROM products p
@@ -117,9 +115,9 @@ include APP_PATH . '/Views/layouts/header.php';
         <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
             <div class="text-sm text-slate-600 dark:text-slate-400">
                 <span class="font-semibold text-slate-900 dark:text-white"><?php echo number_format($totalProducts); ?></span>
-                <?php echo getCurrentLanguage() === 'vi' ? ' sản phẩm' : ' products'; ?>
+                sản phẩm
                 <?php if ($search !== ''): ?>
-                    <?php echo getCurrentLanguage() === 'vi' ? ' cho ' : ' for '; ?>
+                    cho
                     "<span class="font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($search); ?></span>"
                 <?php endif; ?>
             </div>
@@ -132,10 +130,10 @@ include APP_PATH . '/Views/layouts/header.php';
                     <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
                 <?php endif; ?>
                 <select name="sort" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary dark:border-slate-700 dark:bg-slate-800" onchange="this.form.submit()">
-                    <option value="name_asc" <?php echo $sort === 'name_asc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Tên A-Z' : 'Name A-Z'; ?></option>
-                    <option value="price_asc" <?php echo $sort === 'price_asc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Giá thấp đến cao' : 'Price: Low to High'; ?></option>
-                    <option value="price_desc" <?php echo $sort === 'price_desc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Giá cao đến thấp' : 'Price: High to Low'; ?></option>
-                    <option value="rating" <?php echo $sort === 'rating' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Đánh giá cao nhất' : 'Highest Rated'; ?></option>
+                    <option value="name_asc" <?php echo $sort === 'name_asc' ? 'selected' : ''; ?>>Tên A-Z</option>
+                    <option value="price_asc" <?php echo $sort === 'price_asc' ? 'selected' : ''; ?>>Giá thấp đến cao</option>
+                    <option value="price_desc" <?php echo $sort === 'price_desc' ? 'selected' : ''; ?>>Giá cao đến thấp</option>
+                    <option value="rating" <?php echo $sort === 'rating' ? 'selected' : ''; ?>>Đánh giá cao nhất</option>
                 </select>
             </form>
         </div>
@@ -184,7 +182,7 @@ include APP_PATH . '/Views/layouts/header.php';
                 <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
                     <?php if ($currentPage > 1): ?>
                         <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $currentPage - 1); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <?php echo getCurrentLanguage() === 'vi' ? 'Truoc' : 'Previous'; ?>
+                            Trước
                         </a>
                     <?php endif; ?>
 
@@ -214,7 +212,7 @@ include APP_PATH . '/Views/layouts/header.php';
 
                     <?php if ($currentPage < $totalPages): ?>
                         <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $currentPage + 1); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                            <?php echo getCurrentLanguage() === 'vi' ? 'Sau' : 'Next'; ?>
+                            Sau
                         </a>
                     <?php endif; ?>
                 </nav>
@@ -222,14 +220,14 @@ include APP_PATH . '/Views/layouts/header.php';
         <?php else: ?>
             <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Khong tim thay san pham' : 'No products found'; ?>
+                    Không tìm thấy sản phẩm
                 </h2>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Hay thu thay doi bo loc hoac tu khoa tim kiem.' : 'Try adjusting the current filter or search term.'; ?>
+                    Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.
                 </p>
                 <a href="<?php echo url('products.php'); ?>" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary/90">
                     <span class="material-symbols-outlined">refresh</span>
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Xoa bo loc' : 'Clear Filters'; ?>
+                    Xóa bộ lọc
                 </a>
             </div>
         <?php endif; ?>

@@ -39,47 +39,70 @@ $productDescription = $product['description']
         ? 'Sản phẩm chất lượng cao với công nghệ tiên tiến và thiết kế hiện đại.'
         : 'High quality product with advanced technology and modern design.');
 $productDescription = html_entity_decode($productDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-$productDescription = strip_tags(
-    $productDescription,
-    '<p><br><ul><ol><li><strong><b><em><i><u><a><h1><h2><h3><h4><h5><h6><table><thead><tbody><tr><th><td><div><span>'
-);
+$productDescription = normalizeProductDescriptionHtml($productDescription);
 
 include APP_PATH . '/Views/layouts/header.php';
 ?>
 
 <style>
-    /* Chứa nội dung, không cho các thẻ float bị tràn ra ngoài container */
     .product-description {
-        display: flow-root; 
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-        word-break: break-word;
+        display: flow-root;
+        overflow-wrap: anywhere;
     }
 
-    /* Bắt buộc tất cả phần tử bên trong KHÔNG ĐƯỢC DÙNG FLOAT */
-    .product-description * {
-        float: none !important;
-        position: static !important; /* Ngăn absolute positioning kéo lệch thẻ */
+    .product-description > :first-child {
+        margin-top: 0 !important;
     }
 
-    /* Tối ưu hiển thị hình ảnh và video */
+    .product-description > :last-child {
+        margin-bottom: 0 !important;
+    }
+
+    .product-description::after {
+        content: "";
+        display: block;
+        clear: both;
+    }
+
     .product-description img,
     .product-description table,
     .product-description iframe,
     .product-description video {
         max-width: 100% !important;
         height: auto !important;
-        display: block !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        margin-bottom: 1rem !important; /* Tạo khoảng cách dọc */
     }
 
-    /* Tối ưu hiển thị bảng (tables) */
+    .product-description img,
+    .product-description iframe,
+    .product-description video {
+        display: block !important;
+        margin: 1rem auto !important;
+    }
+
     .product-description table {
-        display: block;
-        overflow-x: auto;
+        display: table;
         width: 100% !important;
+        border-collapse: collapse;
+    }
+
+    .product-description .table-container,
+    .product-description .seo-table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .product-description td,
+    .product-description th {
+        border: 1px solid rgb(226 232 240);
+        padding: 0.75rem;
+        vertical-align: top;
+    }
+
+    .product-description a {
+        color: rgb(15 110 235);
+        text-decoration: underline;
     }
 </style>
 
@@ -115,7 +138,7 @@ include APP_PATH . '/Views/layouts/header.php';
                     <span class="material-symbols-outlined text-xs"><?php echo $availableLocationCount > 0 ? 'verified' : 'storefront'; ?></span>
                     <?php echo $availableLocationCount > 0
                         ? t('in_stock')
-                        : (getCurrentLanguage() === 'vi' ? 'Tam het hang tai cua hang' : 'Currently unavailable in stores'); ?>
+                        : 'Tạm hết hàng tại cửa hàng'; ?>
                 </div>
 
                 <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
@@ -199,21 +222,21 @@ include APP_PATH . '/Views/layouts/header.php';
         <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
             <h2 class="mb-5 text-xl font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></h2>
             <div class="product-description prose prose-slate max-w-none text-sm leading-relaxed dark:prose-invert prose-p:text-slate-600 prose-li:text-slate-600 dark:prose-p:text-slate-400 dark:prose-li:text-slate-400">
-                <?php echo $productDescription; ?>
+                <?php echo $productDescription !== '' ? $productDescription : '<p>Chưa có mô tả cho sản phẩm này.</p>'; ?>
             </div>
         </div>
     </div>
 
     <div class="lg:col-span-5">
         <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <div class="mb-5 flex items-center justify-between gap-3">
-                <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-                    <?php echo getCurrentLanguage() === 'vi' ? 'San pham co san tai cua hang' : 'Store availability'; ?>
+                <div class="mb-5 flex items-center justify-between gap-3">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                    Sản phẩm có sẵn tại cửa hàng
                 </h2>
                 <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     <?php echo $availableLocationCount . ' ' . ($availableLocationCount === 1
-                        ? (getCurrentLanguage() === 'vi' ? 'dia diem' : 'location')
-                        : (getCurrentLanguage() === 'vi' ? 'dia diem' : 'locations')); ?>
+                        ? 'địa điểm'
+                        : 'địa điểm'); ?>
                 </span>
             </div>
 
@@ -253,9 +276,7 @@ include APP_PATH . '/Views/layouts/header.php';
                 </div>
             <?php else: ?>
                 <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-                    <?php echo getCurrentLanguage() === 'vi'
-                        ? 'San pham nay hien chua duoc gan voi cua hang nao trong he thong.'
-                        : 'This product is not currently assigned to any store location in the database.'; ?>
+                    Sản phẩm này hiện chưa được gán với cửa hàng nào trong hệ thống.
                 </div>
             <?php endif; ?>
         </div>

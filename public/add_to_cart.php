@@ -32,6 +32,6 @@ $_SESSION['cart_count'] = array_sum(array_map('intval', $_SESSION['cart']));
 
 echo json_encode([
     'success' => true,
-    'message' => getCurrentLanguage() === 'vi' ? 'Da them vao gio hang.' : 'Added to cart.',
+    'message' => 'Đã thêm vào giỏ hàng.',
     'cart_count' => $_SESSION['cart_count'],
 ]);

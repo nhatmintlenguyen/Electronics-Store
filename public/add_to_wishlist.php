@@ -32,5 +32,5 @@ if (!in_array($productId, $_SESSION['wishlist'], true)) {
 
 echo json_encode([
     'success' => true,
-    'message' => getCurrentLanguage() === 'vi' ? 'Da them vao yeu thich.' : 'Added to wishlist.',
+    'message' => 'Đã thêm vào yêu thích.',
 ]);

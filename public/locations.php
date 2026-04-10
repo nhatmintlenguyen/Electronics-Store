@@ -1,10 +1,8 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
 
-$page_title = getCurrentLanguage() === 'vi' ? 'Cua hang' : 'Store Locations';
-$page_description = getCurrentLanguage() === 'vi'
-    ? 'Danh sach cac cua hang TechStore kem dia chi va lien ket Google Maps.'
-    : 'Browse TechStore physical store locations with addresses and Google Maps links.';
+$page_title = 'Cửa hàng';
+$page_description = 'Danh sách các cửa hàng TechStore kèm địa chỉ và liên kết Google Maps.';
 
 $conn = getDBConnection();
 $stmt = $conn->query('SELECT * FROM locations ORDER BY name ASC');
@@ -16,12 +14,10 @@ include APP_PATH . '/Views/layouts/header.php';
 <section class="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">TechStore</p>
     <h1 class="text-3xl font-black text-slate-900 dark:text-white">
-        <?php echo getCurrentLanguage() === 'vi' ? 'He thong cua hang' : 'Store Locations'; ?>
+        Hệ thống cửa hàng
     </h1>
     <p class="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-        <?php echo getCurrentLanguage() === 'vi'
-            ? 'Kiem tra dia chi, khu vuc va mo nhanh Google Maps cho tung cua hang.'
-            : 'Check addresses, districts, and open Google Maps for each physical store.'; ?>
+        Kiểm tra địa chỉ, khu vực và mở nhanh Google Maps cho từng cửa hàng.
     </p>
 </section>
 
@@ -47,7 +43,7 @@ include APP_PATH . '/Views/layouts/header.php';
                 </p>
                 <p class="flex items-start gap-2">
                     <span class="material-symbols-outlined text-lg text-slate-400">schedule</span>
-                    <span><?php echo getCurrentLanguage() === 'vi' ? 'Mo cua 09:00 - 21:00 moi ngay' : 'Open daily from 09:00 to 21:00'; ?></span>
+                    <span>Mở cửa 09:00 - 21:00 mỗi ngày</span>
                 </p>
             </div>
 
@@ -59,7 +55,7 @@ include APP_PATH . '/Views/layouts/header.php';
                     class="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
                 >
                     <span class="material-symbols-outlined text-lg">map</span>
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Mo Google Maps' : 'Open Google Maps'; ?>
+                    Mở Google Maps
                 </a>
             <?php endif; ?>
         </article>
