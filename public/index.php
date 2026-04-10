@@ -25,6 +25,9 @@ $productsStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $productsStmt->execute();
 $products = $productsStmt->fetchAll();
 
+$categoriesStmt = $conn->query('SELECT id, name FROM categories ORDER BY name ASC');
+$categories = $categoriesStmt->fetchAll();
+
 $paginationRange = 2;
 $startPage = max(1, $currentPage - $paginationRange);
 $endPage = min($totalPages, $currentPage + $paginationRange);
@@ -33,28 +36,50 @@ include APP_PATH . '/Views/layouts/header.php';
 ?>
 
 <section class="mb-8">
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
+    <div class="hero-filter-panel rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:p-8">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div class="max-w-3xl">
                 <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">TechStore</p>
-                <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('featured_products'); ?></h1>
-                <p class="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     <?php echo getCurrentLanguage() === 'vi'
                         ? 'Trang chu hien thi toan bo san pham va chia thanh tung trang de de duyet hon.'
                         : 'Browse the full catalog from the homepage, with 20 products per page for a simpler flow.'; ?>
                 </p>
             </div>
-            <div class="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+            <div class="rounded-full bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                 <?php echo getCurrentLanguage() === 'vi'
                     ? 'Tong san pham: '
                     : 'Total products: '; ?>
                 <span class="font-bold text-slate-900 dark:text-white"><?php echo number_format($totalProducts); ?></span>
             </div>
         </div>
+
+        <div class="category-pill-row mt-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar" data-category-filters>
+            <button
+                type="button"
+                class="category-pill is-active"
+                data-category-button
+                data-category-id="all"
+                aria-pressed="true"
+            >
+                <?php echo getCurrentLanguage() === 'vi' ? 'Tat ca' : 'All'; ?>
+            </button>
+            <?php foreach ($categories as $category): ?>
+                <button
+                    type="button"
+                    class="category-pill"
+                    data-category-button
+                    data-category-id="<?php echo (int) $category['id']; ?>"
+                    aria-pressed="false"
+                >
+                    <?php echo htmlspecialchars($category['name']); ?>
+                </button>
+            <?php endforeach; ?>
+        </div>
     </div>
 </section>
 
-<section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+<section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-product-grid>
     <?php foreach ($products as $product): ?>
     <div class="product-card group relative overflow-hidden rounded-xl border border-slate-100 bg-white transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
         <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="block">

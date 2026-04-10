@@ -22,14 +22,66 @@ if (!$product) {
     redirectTo('products.php');
 }
 
+$locationsStmt = $conn->prepare(
+    'SELECT l.*
+     FROM product_locations pl
+     JOIN locations l ON l.id = pl.location_id
+     WHERE pl.product_id = :product_id
+     ORDER BY l.name ASC'
+);
+$locationsStmt->execute([':product_id' => $productId]);
+$productLocations = $locationsStmt->fetchAll();
+$availableLocationCount = count($productLocations);
+
 $page_title = $product['name'];
 $productDescription = $product['description']
     ?: (getCurrentLanguage() === 'vi'
         ? 'Sản phẩm chất lượng cao với công nghệ tiên tiến và thiết kế hiện đại.'
         : 'High quality product with advanced technology and modern design.');
+$productDescription = html_entity_decode($productDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+$productDescription = strip_tags(
+    $productDescription,
+    '<p><br><ul><ol><li><strong><b><em><i><u><a><h1><h2><h3><h4><h5><h6><table><thead><tbody><tr><th><td><div><span>'
+);
 
 include APP_PATH . '/Views/layouts/header.php';
 ?>
+
+<style>
+    /* Chứa nội dung, không cho các thẻ float bị tràn ra ngoài container */
+    .product-description {
+        display: flow-root; 
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    /* Bắt buộc tất cả phần tử bên trong KHÔNG ĐƯỢC DÙNG FLOAT */
+    .product-description * {
+        float: none !important;
+        position: static !important; /* Ngăn absolute positioning kéo lệch thẻ */
+    }
+
+    /* Tối ưu hiển thị hình ảnh và video */
+    .product-description img,
+    .product-description table,
+    .product-description iframe,
+    .product-description video {
+        max-width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-bottom: 1rem !important; /* Tạo khoảng cách dọc */
+    }
+
+    /* Tối ưu hiển thị bảng (tables) */
+    .product-description table {
+        display: block;
+        overflow-x: auto;
+        width: 100% !important;
+    }
+</style>
 
 <nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
     <a class="hover:text-primary" href="<?php echo url('index.php'); ?>"><?php echo t('home'); ?></a>
@@ -57,11 +109,13 @@ include APP_PATH . '/Views/layouts/header.php';
     </div>
 
     <div class="lg:col-span-5">
-        <div class="sticky top-24 space-y-8">
+            <div class="sticky top-24 space-y-8">
             <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
-                    <span class="material-symbols-outlined text-xs">verified</span>
-                    <?php echo t('in_stock'); ?>
+                <div class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wider <?php echo $availableLocationCount > 0 ? 'bg-primary/10 text-primary' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300'; ?>">
+                    <span class="material-symbols-outlined text-xs"><?php echo $availableLocationCount > 0 ? 'verified' : 'storefront'; ?></span>
+                    <?php echo $availableLocationCount > 0
+                        ? t('in_stock')
+                        : (getCurrentLanguage() === 'vi' ? 'Tam het hang tai cua hang' : 'Currently unavailable in stores'); ?>
                 </div>
 
                 <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white leading-tight">
@@ -105,13 +159,6 @@ include APP_PATH . '/Views/layouts/header.php';
                 </button>
             </div>
 
-            <div class="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-800">
-                <h3 class="font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    <?php echo nl2br(htmlspecialchars($productDescription)); ?>
-                </p>
-            </div>
-
             <div class="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-800">
                 <div class="flex items-center gap-3 text-sm">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -146,6 +193,74 @@ include APP_PATH . '/Views/layouts/header.php';
         </div>
     </div>
 </div>
+
+<section class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
+    <div class="lg:col-span-7">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="mb-5 text-xl font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></h2>
+            <div class="product-description prose prose-slate max-w-none text-sm leading-relaxed dark:prose-invert prose-p:text-slate-600 prose-li:text-slate-600 dark:prose-p:text-slate-400 dark:prose-li:text-slate-400">
+                <?php echo $productDescription; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-5">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <div class="mb-5 flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                    <?php echo getCurrentLanguage() === 'vi' ? 'San pham co san tai cua hang' : 'Store availability'; ?>
+                </h2>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <?php echo $availableLocationCount . ' ' . ($availableLocationCount === 1
+                        ? (getCurrentLanguage() === 'vi' ? 'dia diem' : 'location')
+                        : (getCurrentLanguage() === 'vi' ? 'dia diem' : 'locations')); ?>
+                </span>
+            </div>
+
+            <?php if ($availableLocationCount > 0): ?>
+                <div class="space-y-3">
+                    <?php foreach ($productLocations as $location): ?>
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="space-y-1">
+                                    <p class="font-semibold text-slate-900 dark:text-white">
+                                        <?php echo htmlspecialchars($location['name']); ?>
+                                    </p>
+                                    <?php if (!empty($location['district'])): ?>
+                                        <p class="text-xs font-medium uppercase tracking-wide text-primary">
+                                            <?php echo htmlspecialchars($location['district']); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <?php if (!empty($location['address'])): ?>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                                            <?php echo htmlspecialchars($location['address']); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if (!empty($location['google_maps_url'])): ?>
+                                    <a
+                                        href="<?php echo htmlspecialchars($location['google_maps_url']); ?>"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="shrink-0 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+                                    >
+                                        <?php echo getCurrentLanguage() === 'vi' ? 'Xem ban do' : 'Open map'; ?>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                    <?php echo getCurrentLanguage() === 'vi'
+                        ? 'San pham nay hien chua duoc gan voi cua hang nao trong he thong.'
+                        : 'This product is not currently assigned to any store location in the database.'; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
 
 <?php
 $relatedStmt = $conn->prepare(

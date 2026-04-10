@@ -40,6 +40,17 @@
     </style>
 </head>
 <body data-app-base-url="<?php echo htmlspecialchars(url()); ?>" class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div class="topbar border-b border-slate-200/80 bg-slate-950 text-slate-100 dark:border-slate-800 dark:bg-black">
+        <div class="max-w-7xl mx-auto flex min-h-9 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <p class="topbar-copy truncate text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300">
+                Premium Electronics &amp; Authentic Tech Gadgets
+            </p>
+            <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-100">
+                <span class="material-symbols-outlined text-sm text-primary">local_shipping</span>
+                <span class="whitespace-nowrap">Miễn phí Ship cho đơn hàng trên 1,000,000₫</span>
+            </div>
+        </div>
+    </div>
     <nav class="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-8">
@@ -53,7 +64,7 @@
                 </div>
 
                 <div class="flex-1 max-w-2xl hidden md:block">
-                    <form action="<?php echo url('products.php'); ?>" method="GET">
+                    <form action="<?php echo url('products.php'); ?>" method="GET" class="relative" data-search-form>
                         <div class="relative group">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors">search</span>
@@ -61,7 +72,16 @@
                             <input class="block w-full pl-10 pr-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg leading-5 bg-slate-50 dark:bg-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all"
                                    placeholder="<?php echo t('search_placeholder'); ?>"
                                    type="text"
-                                   name="search"/>
+                                   name="search"
+                                   autocomplete="off"
+                                   data-search-input
+                                   data-search-endpoint="<?php echo url('search_products.php'); ?>"/>
+                        </div>
+                        <div
+                            class="absolute left-0 right-0 top-[calc(100%+0.5rem)] hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+                            data-search-results
+                        >
+                            <div class="max-h-[28rem] overflow-y-auto" data-search-results-list></div>
                         </div>
                     </form>
                 </div>
@@ -96,31 +116,5 @@
             </div>
         </div>
     </nav>
-
-    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-8 h-12 overflow-x-auto no-scrollbar">
-                <a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary py-3 shrink-0 transition-colors" href="<?php echo url('products.php'); ?>">
-                    <span class="material-symbols-outlined text-lg">devices</span> <?php echo t('all_categories'); ?>
-                </a>
-                <?php
-                $conn = getDBConnection();
-                $stmt = $conn->prepare('SELECT * FROM categories LIMIT 6');
-                $stmt->execute();
-                $navCategories = $stmt->fetchAll();
-                foreach ($navCategories as $category):
-                ?>
-                <a class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-primary py-3 shrink-0 transition-colors" href="<?php echo url('products.php?category=' . $category['id']); ?>">
-                    <?php echo htmlspecialchars($category['name']); ?>
-                </a>
-                <?php endforeach; ?>
-
-                <div class="ml-auto hidden lg:flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">local_shipping</span>
-                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300"><?php echo t('free_shipping_desc'); ?></span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
