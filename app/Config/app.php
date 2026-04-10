@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-const DB_HOST = 'localhost';
+const DB_HOST = '127.0.0.1';
+const DB_PORT = 3306;
 const DB_USER = 'root';
 const DB_PASS = '';
 const DB_NAME = 'electronics_store';
@@ -22,7 +23,7 @@ function getDBConnection(): PDO
 
     try {
         $connection = new PDO(
-            'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+            'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
             DB_USER,
             DB_PASS,
             [
