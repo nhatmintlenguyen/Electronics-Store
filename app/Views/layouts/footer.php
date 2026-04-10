@@ -11,16 +11,16 @@
                         <span class="text-xl font-bold tracking-tight">TechStore</span>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">
-                        <?php echo getCurrentLanguage() === 'vi' ? 'Điểm đến đáng tin cậy của bạn cho các thiết bị điện tử chất lượng.' : 'Your trusted destination for quality electronics.'; ?>
+                        Điểm đến đáng tin cậy của bạn cho các thiết bị điện tử chất lượng.
                     </p>
                 </div>
 
                 <div>
-                    <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo getCurrentLanguage() === 'vi' ? 'Liên kết nhanh' : 'Quick Links'; ?></h5>
+                    <h5 class="font-bold text-slate-900 dark:text-white mb-4">Liên kết nhanh</h5>
                     <ul class="space-y-2 text-sm">
                         <li><a href="<?php echo url('index.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('home'); ?></a></li>
                         <li><a href="<?php echo url('products.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('products'); ?></a></li>
-                        <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() === 'vi' ? 'Cửa hàng' : 'Store Locations'; ?></a></li>
+                        <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Cửa hàng</a></li>
                         <li><a href="<?php echo url('about.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('about_us'); ?></a></li>
                     </ul>
                 </div>
@@ -28,14 +28,14 @@
                 <div>
                     <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo t('customer_support'); ?></h5>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('contact'); ?></a></li>
-                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() === 'vi' ? 'Hướng dẫn mua hàng' : 'Shopping Guide'; ?></a></li>
-                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo getCurrentLanguage() === 'vi' ? 'Chính sách đổi trả' : 'Return Policy'; ?></a></li>
-                        <li><a href="#" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('warranty'); ?></a></li>
+                        <li><a href="<?php echo url('contact.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('contact'); ?></a></li>
+                        <li><a href="<?php echo url('products.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Hướng dẫn mua hàng</a></li>
+                        <li><a href="<?php echo url('about.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Chính sách đổi trả</a></li>
+                        <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('warranty'); ?></a></li>
                     </ul>
                 </div>
 
-                <div>
+                <div id="site-contact">
                     <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo t('contact'); ?></h5>
                     <div class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                         <p class="flex items-center gap-2">
@@ -48,7 +48,7 @@
                         </p>
                         <p class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-lg">location_on</span>
-                            <?php echo getCurrentLanguage() === 'vi' ? 'Hà Nội, Việt Nam' : 'Hanoi, Vietnam'; ?>
+                            Hà Nội, Việt Nam
                         </p>
                     </div>
                 </div>
@@ -57,9 +57,9 @@
             <div class="border-t border-slate-200 dark:border-slate-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-xs text-slate-500">© <?php echo date('Y'); ?> TechStore. <?php echo t('all_rights_reserved'); ?></p>
                 <div class="flex gap-6 text-xs">
-                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('privacy_policy'); ?></a>
-                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('terms_of_service'); ?></a>
-                    <a href="#" class="text-slate-500 hover:text-primary transition-colors"><?php echo getCurrentLanguage() === 'vi' ? 'Cài đặt cookie' : 'Cookies Settings'; ?></a>
+                    <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('privacy_policy'); ?></a>
+                    <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('terms_of_service'); ?></a>
+                    <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors">Cài đặt cookie</a>
                 </div>
             </div>
         </div>

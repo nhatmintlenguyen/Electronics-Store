@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . ' - ' . SITE_NAME : SITE_NAME; ?></title>
+    <meta
+        name="description"
+        content="<?php echo htmlspecialchars($page_description ?? 'TechStore là website điện tử động, hỗ trợ tìm kiếm AJAX, danh mục sản phẩm, vị trí cửa hàng và mua sắm trực tuyến.'); ?>"
+    >
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -40,10 +44,21 @@
     </style>
 </head>
 <body data-app-base-url="<?php echo htmlspecialchars(url()); ?>" class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+    <?php
+    $currentScript = basename((string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $isHomeActive = $currentScript === 'index.php';
+    $isProductsActive = in_array($currentScript, ['products.php', 'product_detail.php'], true);
+    $isContactActive = $currentScript === 'contact.php';
+    $navLinkClass = static function (bool $isActive): string {
+        return $isActive
+            ? 'text-sm font-semibold text-primary'
+            : 'text-sm font-semibold text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-primary';
+    };
+    ?>
     <div class="topbar border-b border-slate-200/80 bg-slate-950 text-slate-100 dark:border-slate-800 dark:bg-black">
         <div class="max-w-7xl mx-auto flex min-h-9 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <p class="topbar-copy truncate text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300">
-                Premium Electronics &amp; Authentic Tech Gadgets
+                Thiết bị điện tử cao cấp và phụ kiện công nghệ chính hãng
             </p>
             <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-100">
                 <span class="material-symbols-outlined text-sm text-primary">local_shipping</span>
@@ -54,13 +69,25 @@
     <nav class="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-8">
-                <div class="flex items-center gap-2 flex-shrink-0">
+                <div class="flex items-center gap-6 flex-shrink-0">
                     <a href="<?php echo url('index.php'); ?>" class="flex items-center gap-2">
                         <div class="text-primary">
                             <span class="material-symbols-outlined text-3xl">bolt</span>
                         </div>
                         <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">TechStore</span>
                     </a>
+
+                    <div class="hidden lg:flex items-center gap-5">
+                        <a href="<?php echo url('index.php'); ?>" class="<?php echo $navLinkClass($isHomeActive); ?>">
+                            <?php echo t('home'); ?>
+                        </a>
+                        <a href="<?php echo url('products.php'); ?>" class="<?php echo $navLinkClass($isProductsActive); ?>">
+                            <?php echo t('products'); ?>
+                        </a>
+                        <a href="<?php echo url('contact.php'); ?>" class="<?php echo $navLinkClass($isContactActive); ?>">
+                            <?php echo t('contact'); ?>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="flex-1 max-w-2xl hidden md:block">
@@ -107,11 +134,6 @@
                         </span>
                     </a>
 
-                    <div class="flex items-center gap-1 ml-2 border-l border-slate-200 dark:border-slate-700 pl-4">
-                        <a href="?lang=vi" class="text-sm font-medium <?php echo getCurrentLanguage() === 'vi' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'; ?> transition-colors">VI</a>
-                        <span class="text-slate-300">|</span>
-                        <a href="?lang=en" class="text-sm font-medium <?php echo getCurrentLanguage() === 'en' ? 'text-primary' : 'text-slate-400 hover:text-slate-600'; ?> transition-colors">EN</a>
-                    </div>
                 </div>
             </div>
         </div>

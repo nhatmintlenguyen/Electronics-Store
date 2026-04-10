@@ -3,18 +3,12 @@ declare(strict_types=1);
 
 function getCurrentLanguage(): string
 {
-    if (!isset($_SESSION['lang'])) {
-        $_SESSION['lang'] = 'vi';
-    }
-
     return $_SESSION['lang'];
 }
 
 function setLanguage(string $lang): void
 {
-    if (in_array($lang, ['vi', 'en'], true)) {
-        $_SESSION['lang'] = $lang;
-    }
+    $_SESSION['lang'] = 'vi';
 }
 
 function t(string $key, ?string $lang = null): string
@@ -117,8 +111,6 @@ function formatPriceVND(float|int|string $price): string
     return number_format((float) $price, 0, ',', '.') . '₫';
 }
 
-if (isset($_GET['lang']) && in_array($_GET['lang'], ['vi', 'en'], true)) {
-    setLanguage((string) $_GET['lang']);
-    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?'));
-    exit();
+if (!isset($_SESSION['lang']) || $_SESSION['lang'] !== 'vi') {
+    $_SESSION['lang'] = 'vi';
 }

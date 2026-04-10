@@ -1,117 +1,137 @@
 <?php
 require_once __DIR__ . '/../app/bootstrap.php';
 
-$page_title = t('products');
-include APP_PATH . '/Views/layouts/header.php';
-
 $conn = getDBConnection();
 
 $categoryFilter = isset($_GET['category']) ? (int) $_GET['category'] : null;
-$search = isset($_GET['search']) ? sanitize((string) $_GET['search']) : '';
+$search = isset($_GET['search']) ? sanitize((string) ($_GET['search'] ?? '')) : '';
 $sort = isset($_GET['sort']) ? (string) $_GET['sort'] : 'name_asc';
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$perPage = 12;
 
-$query = 'SELECT p.*, c.name AS category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE 1=1';
+$page_title = t('products');
+$page_description = getCurrentLanguage() === 'vi'
+    ? 'Danh muc san pham TechStore voi bo loc, sap xep va phan trang.'
+    : 'Browse the TechStore catalog with filters, sorting, and pagination.';
+
+$baseQuery =
+    'FROM products p
+     JOIN categories c ON p.category_id = c.id
+     WHERE 1=1';
 $params = [];
 
 if ($categoryFilter) {
-    $query .= ' AND p.category_id = :category';
+    $baseQuery .= ' AND p.category_id = :category';
     $params[':category'] = $categoryFilter;
 }
 
 if ($search !== '') {
-    $query .= ' AND p.name LIKE :search';
+    $baseQuery .= ' AND p.name LIKE :search';
     $params[':search'] = '%' . $search . '%';
 }
 
-switch ($sort) {
-    case 'price_asc':
-        $query .= ' ORDER BY p.price ASC';
-        break;
-    case 'price_desc':
-        $query .= ' ORDER BY p.price DESC';
-        break;
-    case 'rating':
-        $query .= ' ORDER BY p.rating DESC';
-        break;
-    default:
-        $query .= ' ORDER BY p.name ASC';
-}
+$orderBy = match ($sort) {
+    'price_asc' => ' ORDER BY p.price ASC, p.name ASC',
+    'price_desc' => ' ORDER BY p.price DESC, p.name ASC',
+    'rating' => ' ORDER BY p.rating DESC, p.name ASC',
+    default => ' ORDER BY p.name ASC',
+};
 
-$productsStmt = $conn->prepare($query);
-$productsStmt->execute($params);
+$countStmt = $conn->prepare('SELECT COUNT(*) ' . $baseQuery);
+$countStmt->execute($params);
+$totalProducts = (int) $countStmt->fetchColumn();
+$totalPages = max(1, (int) ceil($totalProducts / $perPage));
+$currentPage = min($currentPage, $totalPages);
+$offset = ($currentPage - 1) * $perPage;
+
+$productsStmt = $conn->prepare(
+    'SELECT p.*, c.name AS category_name ' . $baseQuery . $orderBy . ' LIMIT :limit OFFSET :offset'
+);
+foreach ($params as $key => $value) {
+    $productsStmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+}
+$productsStmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+$productsStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$productsStmt->execute();
 $products = $productsStmt->fetchAll();
 
-$categoriesStmt = $conn->prepare('SELECT * FROM categories ORDER BY name');
-$categoriesStmt->execute();
+$categoriesStmt = $conn->query('SELECT id, name FROM categories ORDER BY name ASC');
 $categories = $categoriesStmt->fetchAll();
 
-$brandsStmt = $conn->prepare("SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != '' ORDER BY brand");
-$brandsStmt->execute();
-$brands = $brandsStmt->fetchAll();
+$startPage = max(1, $currentPage - 2);
+$endPage = min($totalPages, $currentPage + 2);
+
+function productsPageUrl(?int $categoryFilter, string $search, string $sort, int $page): string
+{
+    $params = [
+        'sort' => $sort,
+        'page' => $page,
+    ];
+
+    if ($categoryFilter) {
+        $params['category'] = $categoryFilter;
+    }
+
+    if ($search !== '') {
+        $params['search'] = $search;
+    }
+
+    return url('products.php?' . http_build_query($params));
+}
+
+include APP_PATH . '/Views/layouts/header.php';
 ?>
 
-<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-6">
-    <a class="hover:text-primary transition-colors" href="<?php echo url('index.php'); ?>"><?php echo t('home'); ?></a>
+<nav class="mb-6 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+    <a class="transition-colors hover:text-primary" href="<?php echo url('index.php'); ?>"><?php echo t('home'); ?></a>
     <span class="material-symbols-outlined text-sm leading-none">chevron_right</span>
-    <span class="text-slate-900 dark:text-slate-100 font-medium"><?php echo t('products'); ?></span>
+    <span class="font-medium text-slate-900 dark:text-slate-100"><?php echo t('products'); ?></span>
 </nav>
 
-<div class="flex flex-col lg:flex-row gap-8">
-    <aside class="w-full lg:w-64 shrink-0 space-y-8">
-        <section>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4"><?php echo t('categories'); ?></h3>
-            <div class="space-y-1">
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg <?php echo !$categoryFilter ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-slate-100 dark:hover:bg-slate-800'; ?> transition-colors"
-                   href="<?php echo url('products.php' . ($search !== '' ? '?search=' . urlencode($search) : '')); ?>">
+<div class="flex flex-col gap-8 lg:flex-row">
+    <aside class="w-full shrink-0 space-y-6 lg:w-72">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="mb-4 text-sm font-bold uppercase tracking-wider text-slate-400"><?php echo t('categories'); ?></h2>
+            <div class="space-y-2">
+                <a
+                    class="flex items-center gap-3 rounded-xl px-3 py-2 <?php echo !$categoryFilter ? 'bg-primary/10 font-semibold text-primary' : 'text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'; ?>"
+                    href="<?php echo productsPageUrl(null, $search, $sort, 1); ?>"
+                >
                     <span class="material-symbols-outlined text-lg">devices</span>
                     <span class="text-sm"><?php echo t('all_categories'); ?></span>
                 </a>
-                <?php
-                $categoryIcons = ['laptop_mac', 'smartphone', 'headphones', 'watch', 'sports_esports', 'mouse', 'tablet', 'keyboard'];
-                foreach ($categories as $index => $category):
-                ?>
-                <a class="flex items-center gap-3 px-3 py-2 rounded-lg <?php echo $categoryFilter === (int) $category['id'] ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-slate-100 dark:hover:bg-slate-800'; ?> transition-colors"
-                   href="<?php echo url('products.php?category=' . $category['id'] . ($search !== '' ? '&search=' . urlencode($search) : '')); ?>">
-                    <span class="material-symbols-outlined text-lg <?php echo $categoryFilter === (int) $category['id'] ? '' : 'text-slate-400'; ?>"><?php echo $categoryIcons[$index] ?? 'category'; ?></span>
-                    <span class="text-sm"><?php echo htmlspecialchars($category['name']); ?></span>
-                </a>
+                <?php foreach ($categories as $category): ?>
+                    <a
+                        class="flex items-center gap-3 rounded-xl px-3 py-2 <?php echo $categoryFilter === (int) $category['id'] ? 'bg-primary/10 font-semibold text-primary' : 'text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'; ?>"
+                        href="<?php echo productsPageUrl((int) $category['id'], $search, $sort, 1); ?>"
+                    >
+                        <span class="material-symbols-outlined text-lg <?php echo $categoryFilter === (int) $category['id'] ? '' : 'text-slate-400'; ?>">category</span>
+                        <span class="text-sm"><?php echo htmlspecialchars($category['name']); ?></span>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </section>
-
-        <?php if (count($brands) > 0): ?>
-        <section>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4"><?php echo t('brand'); ?></h3>
-            <div class="space-y-3 px-1">
-                <?php foreach ($brands as $brand): ?>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary transition-all" type="checkbox"/>
-                    <span class="text-sm group-hover:text-primary transition-colors"><?php echo htmlspecialchars($brand['brand']); ?></span>
-                </label>
-                <?php endforeach; ?>
-            </div>
-        </section>
-        <?php endif; ?>
     </aside>
 
-    <div class="flex-1">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+    <section class="flex-1">
+        <div class="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
             <div class="text-sm text-slate-600 dark:text-slate-400">
-                <?php echo count($products); ?> <?php echo getCurrentLanguage() === 'vi' ? 'sản phẩm' : 'products'; ?>
+                <span class="font-semibold text-slate-900 dark:text-white"><?php echo number_format($totalProducts); ?></span>
+                <?php echo getCurrentLanguage() === 'vi' ? ' sản phẩm' : ' products'; ?>
                 <?php if ($search !== ''): ?>
-                    <?php echo getCurrentLanguage() === 'vi' ? 'cho' : 'for'; ?>
+                    <?php echo getCurrentLanguage() === 'vi' ? ' cho ' : ' for '; ?>
                     "<span class="font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($search); ?></span>"
                 <?php endif; ?>
             </div>
 
-            <form method="GET" class="flex items-center gap-2">
+            <form method="GET" class="flex flex-wrap items-center gap-2">
                 <?php if ($categoryFilter): ?>
                     <input type="hidden" name="category" value="<?php echo $categoryFilter; ?>">
                 <?php endif; ?>
                 <?php if ($search !== ''): ?>
                     <input type="hidden" name="search" value="<?php echo htmlspecialchars($search); ?>">
                 <?php endif; ?>
-                <select name="sort" class="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary focus:border-primary" onchange="this.form.submit()">
+                <select name="sort" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary dark:border-slate-700 dark:bg-slate-800" onchange="this.form.submit()">
                     <option value="name_asc" <?php echo $sort === 'name_asc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Tên A-Z' : 'Name A-Z'; ?></option>
                     <option value="price_asc" <?php echo $sort === 'price_asc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Giá thấp đến cao' : 'Price: Low to High'; ?></option>
                     <option value="price_desc" <?php echo $sort === 'price_desc' ? 'selected' : ''; ?>><?php echo getCurrentLanguage() === 'vi' ? 'Giá cao đến thấp' : 'Price: High to Low'; ?></option>
@@ -120,67 +140,100 @@ $brands = $brandsStmt->fetchAll();
             </form>
         </div>
 
-        <?php if (count($products) > 0): ?>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <?php if ($products): ?>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 <?php foreach ($products as $product): ?>
-                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-xl transition-all duration-300">
-                    <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="block">
-                        <div class="aspect-square bg-slate-50 dark:bg-slate-900 p-8 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
-                                <button onclick="event.preventDefault(); addToWishlist(<?php echo (int) $product['id']; ?>);" class="p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-slate-600 hover:text-red-500 transition-colors shadow-sm">
-                                    <span class="material-symbols-outlined text-xl">favorite</span>
-                                </button>
-                            </div>
-                            <?php if (!empty($product['image_url'])): ?>
-                                <img src="<?php echo htmlspecialchars($product['image_url']); ?>"
-                                     alt="<?php echo htmlspecialchars($product['name']); ?>"
-                                     class="object-contain transition-transform duration-500 group-hover:scale-110 max-h-full">
-                            <?php else: ?>
-                                <div class="text-slate-300">
-                                    <span class="material-symbols-outlined" style="font-size: 80px;">image</span>
+                    <div class="product-card group relative overflow-hidden rounded-xl border border-slate-100 bg-white transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+                        <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="block">
+                            <div class="relative flex aspect-square items-center justify-center overflow-hidden bg-slate-50 p-8 dark:bg-slate-900">
+                                <div class="absolute right-2 top-2 z-10 flex flex-col gap-2">
+                                    <button onclick="event.preventDefault(); addToWishlist(<?php echo (int) $product['id']; ?>);" class="rounded-full bg-white/80 p-1.5 text-slate-600 shadow-sm backdrop-blur-sm transition-colors hover:text-red-500">
+                                        <span class="material-symbols-outlined text-xl">favorite</span>
+                                    </button>
                                 </div>
-                            <?php endif; ?>
-                            <div class="cart-button absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 transition-all duration-300">
-                                <button onclick="event.preventDefault(); addToCart(<?php echo (int) $product['id']; ?>);" class="w-full bg-primary text-white py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
-                                    <span class="material-symbols-outlined text-lg">add_shopping_cart</span> <?php echo t('add_to_cart'); ?>
-                                </button>
+                                <?php if (!empty($product['image_url'])): ?>
+                                    <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="max-h-full object-contain transition-transform duration-500 group-hover:scale-110">
+                                <?php else: ?>
+                                    <div class="text-slate-300">
+                                        <span class="material-symbols-outlined" style="font-size: 80px;">image</span>
+                                    </div>
+                                <?php endif; ?>
+                                <div class="cart-button absolute inset-x-0 bottom-0 translate-y-4 p-4 opacity-0 transition-all duration-300">
+                                    <button onclick="event.preventDefault(); addToCart(<?php echo (int) $product['id']; ?>);" class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-bold text-white shadow-lg shadow-primary/20">
+                                        <span class="material-symbols-outlined text-lg">add_shopping_cart</span> <?php echo t('add_to_cart'); ?>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                    <div class="p-5">
-                        <span class="text-[10px] font-bold text-primary tracking-widest uppercase mb-1 block"><?php echo htmlspecialchars($product['category_name']); ?></span>
-                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2 line-clamp-2">
-                            <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>"><?php echo htmlspecialchars($product['name']); ?></a>
-                        </h3>
-                        <div class="flex items-center gap-1 mb-3">
-                            <span class="material-symbols-outlined text-yellow-400 text-sm" style="font-variation-settings: 'FILL' 1">star</span>
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400"><?php echo number_format((float) $product['rating'], 1); ?></span>
-                        </div>
-                        <div class="flex items-center justify-between">
+                        </a>
+                        <div class="p-5">
+                            <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-primary"><?php echo htmlspecialchars($product['category_name']); ?></span>
+                            <h3 class="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-100 line-clamp-2">
+                                <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>"><?php echo htmlspecialchars($product['name']); ?></a>
+                            </h3>
+                            <div class="mb-3 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-yellow-400" style="font-variation-settings: 'FILL' 1">star</span>
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400"><?php echo number_format((float) $product['rating'], 1); ?></span>
+                            </div>
                             <span class="text-lg font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($product['price']); ?></span>
                         </div>
                     </div>
-                </div>
                 <?php endforeach; ?>
             </div>
+
+            <?php if ($totalPages > 1): ?>
+                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                    <?php if ($currentPage > 1): ?>
+                        <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $currentPage - 1); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                            <?php echo getCurrentLanguage() === 'vi' ? 'Truoc' : 'Previous'; ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($startPage > 1): ?>
+                        <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, 1); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">1</a>
+                        <?php if ($startPage > 2): ?>
+                            <span class="px-2 text-sm text-slate-400">...</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php for ($page = $startPage; $page <= $endPage; $page++): ?>
+                        <a
+                            href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $page); ?>"
+                            class="<?php echo $page === $currentPage ? 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white shadow-lg shadow-primary/20' : 'rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'; ?>"
+                            aria-current="<?php echo $page === $currentPage ? 'page' : 'false'; ?>"
+                        >
+                            <?php echo $page; ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($endPage < $totalPages): ?>
+                        <?php if ($endPage < $totalPages - 1): ?>
+                            <span class="px-2 text-sm text-slate-400">...</span>
+                        <?php endif; ?>
+                        <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $totalPages); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><?php echo $totalPages; ?></a>
+                    <?php endif; ?>
+
+                    <?php if ($currentPage < $totalPages): ?>
+                        <a href="<?php echo productsPageUrl($categoryFilter, $search, $sort, $currentPage + 1); ?>" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary hover:text-primary dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                            <?php echo getCurrentLanguage() === 'vi' ? 'Sau' : 'Next'; ?>
+                        </a>
+                    <?php endif; ?>
+                </nav>
+            <?php endif; ?>
         <?php else: ?>
-            <div class="text-center py-16">
-                <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-5xl text-slate-400">search_off</span>
-                </div>
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Không tìm thấy sản phẩm' : 'No products found'; ?>
-                </h3>
-                <p class="text-slate-600 dark:text-slate-400 mb-6">
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Hãy thử điều chỉnh bộ lọc hoặc tìm kiếm khác' : 'Try adjusting your filters or search term'; ?>
+            <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+                    <?php echo getCurrentLanguage() === 'vi' ? 'Khong tim thay san pham' : 'No products found'; ?>
+                </h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    <?php echo getCurrentLanguage() === 'vi' ? 'Hay thu thay doi bo loc hoac tu khoa tim kiem.' : 'Try adjusting the current filter or search term.'; ?>
                 </p>
-                <a href="<?php echo url('products.php'); ?>" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors">
+                <a href="<?php echo url('products.php'); ?>" class="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary/90">
                     <span class="material-symbols-outlined">refresh</span>
-                    <?php echo getCurrentLanguage() === 'vi' ? 'Xóa bộ lọc' : 'Clear Filters'; ?>
+                    <?php echo getCurrentLanguage() === 'vi' ? 'Xoa bo loc' : 'Clear Filters'; ?>
                 </a>
             </div>
         <?php endif; ?>
-    </div>
+    </section>
 </div>
 
 <?php include APP_PATH . '/Views/layouts/footer.php'; ?>
