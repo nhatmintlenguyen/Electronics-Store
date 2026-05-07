@@ -147,18 +147,18 @@
 
 <section class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
     <div class="lg:col-span-7">
-        <details class="product-description-toggle rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <details class="product-description-toggle rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900" data-description-toggle>
             <summary>
                 <span>
                     <span class="block text-xs font-bold uppercase tracking-[0.2em] text-primary">Mô tả</span>
                     <span class="mt-2 block text-xl font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></span>
                 </span>
                 <span class="product-description-toggle-action">
-                    <span class="product-description-toggle-label">Xem thêm mô tả</span>
+                    <span class="product-description-toggle-label" data-description-toggle-label>Xem thêm mô tả</span>
                     <span class="product-description-toggle-icon material-symbols-outlined">expand_more</span>
                 </span>
             </summary>
-            <div class="product-description mt-6 prose prose-slate max-w-none text-sm leading-relaxed dark:prose-invert prose-p:text-slate-600 prose-li:text-slate-600 dark:prose-p:text-slate-400 dark:prose-li:text-slate-400">
+            <div class="product-description scraped-product-description mt-6">
                 <?php echo $productDescription !== '' ? $productDescription : '<p>Chưa có mô tả cho sản phẩm này.</p>'; ?>
             </div>
         </details>
@@ -283,4 +283,3 @@
         }
     }
 </script>
-

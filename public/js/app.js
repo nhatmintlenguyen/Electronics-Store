@@ -24,6 +24,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-description-toggle]').forEach(toggle => {
+        const label = toggle.querySelector('[data-description-toggle-label]');
+
+        if (!label) {
+            return;
+        }
+
+        function syncLabel() {
+            label.textContent = toggle.open ? 'Thu gọn mô tả' : 'Xem thêm mô tả';
+        }
+
+        syncLabel();
+        toggle.addEventListener('toggle', syncLabel);
+    });
+});
+
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',

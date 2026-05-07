@@ -177,7 +177,7 @@ function normalizeProductDescriptionHtml(?string $html): string
         $html = preg_replace('/<noscript\b[^>]*>.*?<\/noscript>/is', '', $html) ?? $html;
         $html = preg_replace('/<div[^>]*class="[^"]*(?:block-content-product-right|cps-block-boxProductTvc|cps-block-content_btn-showmore)[^"]*"[^>]*>.*?<\/div>/is', '', $html) ?? $html;
         $html = preg_replace('/\sstyle="[^"]*"/i', '', $html) ?? $html;
-        $html = preg_replace('/\s(?:format|provider|loading|id|class)="[^"]*"/i', '', $html) ?? $html;
+        $html = preg_replace('/\s(?:format|provider|loading)="[^"]*"/i', '', $html) ?? $html;
 
         return trim((string) strip_tags(
             $html,
@@ -195,7 +195,7 @@ function normalizeProductDescriptionHtml(?string $html): string
         '//script',
         '//style',
         '//noscript',
-        '//*[@style[contains(translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "display:none")]]',
+        '//*[@style and contains(translate(@style, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "display:none")]',
         '//*[contains(@class, "cps-block-content_btn-showmore")]',
         '//*[contains(@class, "block-content-product-right")]',
         '//*[contains(@class, "cps-block-boxProductTvc")]',
@@ -212,7 +212,7 @@ function normalizeProductDescriptionHtml(?string $html): string
         }
     }
 
-    $allowedAttributes = ['href', 'src', 'alt', 'title', 'target', 'rel', 'colspan', 'rowspan'];
+    $allowedAttributes = ['class', 'id', 'href', 'src', 'alt', 'title', 'target', 'rel', 'colspan', 'rowspan'];
     $nodes = $xpath->query('//*');
     if ($nodes instanceof DOMNodeList) {
         foreach ($nodes as $node) {
