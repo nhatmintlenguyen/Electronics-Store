@@ -1,126 +1,155 @@
 # Electronics Store
 
-Semester project built with PHP + MySQL for Web Programming.
+Electronics Store is a Web Programming semester project built with PHP, MySQL/MariaDB, HTML, CSS, and Vanilla JavaScript. The project has been refactored into a lightweight MVC structure with a single public entry point, clean routes, reusable views, AJAX endpoints, and database-backed product data.
 
-## Mục tiêu refactor
+## Features
 
-Codebase này đã được sắp xếp lại để bám sát structure gợi ý:
+- Homepage with hero banner, category tiles, hardcoded featured products, and promotional product cards.
+- Product catalog with category filtering, keyword search, sorting, and pagination.
+- Product detail page with image, price, rating, technical specifications, store availability, normalized HTML description, and related products.
+- AJAX search dropdown with JSON responses from the PHP backend.
+- AJAX category filtering and AJAX add-to-cart/add-to-wishlist actions.
+- Session-based cart and wishlist for the current browsing session.
+- Login, registration, logout, and password reset pages.
+- Static pages for profile, about, contact, and store locations.
+- Clean URLs through `.htaccess` rewrite rules.
+- Basic SEO files: `public/robots.txt` and `public/sitemap.xml`.
 
-```text
-project-root/
-├── public/        # entry points + public assets
-├── app/           # bootstrap + shared application logic
-├── config/        # app/database configuration
-├── resources/     # views/templates
-├── storage/       # archives, logs, runtime-oriented files
-├── database/      # schema + data files
-├── scripts/       # scraping/migration utilities
-└── README.md
-```
+## Tech Stack
 
-## Structure hiện tại
+- PHP 8.1+ with PDO MySQL.
+- MySQL or MariaDB. XAMPP MariaDB works with the default configuration.
+- HTML5 and Tailwind CDN.
+- Vanilla JavaScript with `fetch()` for AJAX.
+- Python 3.12+ for scraping and MongoDB-to-MySQL migration scripts.
+
+## Project Structure
 
 ```text
 electronics_store/
 ├── public/
-│   ├── index.php
-│   ├── products.php
-│   ├── product_detail.php
-│   ├── login.php
-│   ├── profile.php
-│   ├── cart.php
-│   ├── wishlist.php
-│   ├── locations.php
-│   ├── about.php
-│   ├── contact.php
-│   ├── logout.php
-│   ├── add_to_cart.php
-│   ├── add_to_wishlist.php
-│   ├── search_products.php
-│   ├── filter_products.php
-│   ├── sitemap.xml
+│   ├── index.php          # Front controller, all web requests enter here
+│   ├── .htaccess          # Clean URL rewrite to public/index.php
 │   ├── css/
-│   │   └── style.css
+│   │   ├── app.css        # Main stylesheet
+│   │   └── style.css      # Legacy/compatibility stylesheet
 │   ├── js/
-│   │   └── script.js
-│   ├── images/
-│   └── assets/
+│   │   ├── app.js         # Main JavaScript
+│   │   └── script.js      # Legacy/compatibility JavaScript
+│   ├── robots.txt
+│   └── sitemap.xml
 ├── app/
-│   ├── bootstrap.php
-│   └── Support/
-│       ├── helpers.php
-│       └── language.php
-├── config/
-│   └── app.php
+│   ├── Core/              # Mini MVC framework: App, Router, View, Database
+│   ├── Controllers/       # Request handlers
+│   ├── Models/            # Database query layer
+│   ├── Services/          # Reserved for service classes
+│   ├── Support/           # Shared helpers and language helpers
+│   └── bootstrap.php      # Path constants, autoloading, config loading
+├── routes/
+│   ├── web.php            # Page routes
+│   ├── api.php            # JSON/AJAX routes
+│   └── admin.php          # Reserved admin routes
 ├── resources/
 │   └── views/
-│       └── layouts/
-│           ├── header.php
-│           └── footer.php
-├── storage/
-│   └── archive/
-│       └── legacy/
+│       ├── layouts/       # Header, footer, main layout
+│       └── pages/         # Page templates
+├── config/
+│   ├── app.php            # Session/app helpers and app settings
+│   ├── database.php       # MySQL connection settings
+│   └── mail.php           # Mail settings placeholder
 ├── database/
 │   ├── schema/
 │   │   └── database_setup.sql
 │   └── data/
-├── scripts/
-├── requirements.txt
-└── pyproject.toml
+│       └── scraped_products_detailed.json
+├── scripts/               # Scraping, migration, and debug utilities
+├── storage/               # Runtime/session storage
+├── schema.sql             # Root copy of the database schema
+├── requirements.txt       # Python dependencies
+└── pyproject.toml         # Python project metadata
 ```
 
-## Tech stack
+## Request Flow
 
-- PHP 8+
-- MySQL / MariaDB
-- HTML + Tailwind CDN + JavaScript thuần
-- Python scripts cho scraping / migration
-
-## Chức năng hiện có
-
-- Trang chủ với giao diện storefront, hero, featured products, category filter
-- Product catalog có lọc danh mục, tìm kiếm, sắp xếp, phân trang
-- Product detail có mô tả HTML và tình trạng cửa hàng
-- Tìm kiếm AJAX
-- Add-to-cart / add-to-wishlist bằng AJAX
-- Cart / wishlist lưu bằng session
-- Login / register / forgot password
-- Profile page
-- About / contact / locations pages
-
-## Chạy local
-
-### 1. Tạo database
-
-```sql
-CREATE DATABASE electronics_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```text
+Browser
+-> public/index.php
+-> app/bootstrap.php
+-> routes/web.php or routes/api.php
+-> App\Core\Router
+-> Controller
+-> Model / Database if needed
+-> View or JSON response
 ```
 
-### 2. Import schema
+Example routes:
+
+```text
+GET  /                  -> HomeController@index
+GET  /products          -> ProductController@index
+GET  /product/{id}      -> ProductController@show
+GET  /search-products   -> ApiController@searchProducts
+POST /add-to-cart       -> ApiController@addToCart
+POST /add-to-wishlist   -> ApiController@addToWishlist
+GET  /login             -> AuthController@login
+POST /login             -> AuthController@login
+```
+
+Legacy `.php` URLs such as `/products.php` and `/product_detail.php?id=1` are still supported for compatibility.
+
+## Local Setup
+
+### 1. Start MySQL
+
+Start MySQL/MariaDB from XAMPP or your local database service.
+
+The default database configuration is:
+
+```php
+host:     127.0.0.1
+port:     3306
+database: electronics_store
+username: root
+password: ''
+```
+
+If your local database uses different values, update:
+
+```text
+config/database.php
+```
+
+### 2. Create The Database
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS electronics_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+For XAMPP with an empty root password, use:
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS electronics_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+### 3. Import The Schema
+
+Recommended schema file:
 
 ```bash
 mysql -u root -p electronics_store < database/schema/database_setup.sql
 ```
 
-### 3. Cấu hình kết nối PHP
+For XAMPP with an empty root password:
 
-Sửa file:
-
-```text
-config/app.php
+```bash
+mysql -u root electronics_store < database/schema/database_setup.sql
 ```
 
-Các hằng chính:
+The migration script also points to `database/schema/database_setup.sql`, so this is the canonical schema file.
 
-```php
-const DB_HOST = '127.0.0.1';
-const DB_PORT = 3306;
-const DB_USER = 'root';
-const DB_PASS = '';
-const DB_NAME = 'electronics_store';
-```
+### 4. Install Python Dependencies For Data Migration
 
-### 4. Cài Python dependencies nếu cần migration
+Only required if you want to run the scraper or MongoDB-to-MySQL migration scripts.
 
 ```bash
 python3 -m venv .venv
@@ -128,64 +157,160 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 5. Migrate dữ liệu
+The migration script requires these `.env` variables:
 
-Khuyến nghị dùng:
+```text
+MONGODB_CONNECTION_STRING=
+MONGODB_DATABASE=
+MONGODB_PRODUCTS_COLLECTION=
+```
+
+### 5. Migrate Product Data
 
 ```bash
 python scripts/migrate_mongo_to_mysql.py
 ```
 
-### 6. Chạy web server
+The script initializes the MySQL schema if no tables exist, inserts seed users, categories, locations, products, specifications, descriptions, and product-location availability.
+
+Seed accounts created by the migration:
+
+```text
+admin@electronics.local / admin123
+customer1@electronics.local / pass1234
+```
+
+## Running The Website
+
+### Option A: PHP Built-In Server
+
+Use this option for quick local development:
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-Mở:
+Open:
 
-- `http://localhost:8000/`
-- `http://localhost:8000/products.php`
-- `http://localhost:8000/product_detail.php?id=1`
+```text
+http://localhost:8000/
+http://localhost:8000/products
+http://localhost:8000/product/1
+```
 
-## Lưu ý structure
+### Option B: XAMPP Apache
 
-- `public/` chỉ chứa file được web server serve trực tiếp
-- `config/` chứa cấu hình, không để trong `public/`
-- `resources/views/` chứa layout / template dùng chung
-- `app/` chứa bootstrap và shared logic
-- `storage/archive/legacy/` giữ file cũ để tham chiếu, không dùng runtime
+Place the project inside the XAMPP web root, for example:
 
-## Troubleshooting nhanh
+```text
+/opt/lampp/htdocs/electronics_store
+```
 
-### Không load được CSS/JS
+or:
 
-Kiểm tra:
+```text
+C:\xampp\htdocs\electronics_store
+```
 
-- document root phải là `public/`
-- file tồn tại tại:
-  - `public/css/style.css`
-  - `public/js/script.js`
+Enable Apache rewrite module if needed, then open:
 
-### Lỗi database connection
+```text
+http://localhost/electronics_store/
+http://localhost/electronics_store/products
+http://localhost/electronics_store/product/1
+```
 
-Kiểm tra:
+The root `.htaccess` forwards requests into `public/`, and `public/.htaccess` rewrites clean URLs to `public/index.php`.
 
-- MySQL đang chạy
-- DB `electronics_store` đã được tạo
-- thông tin trong `config/app.php` đúng
+If `.htaccess` rewriting is disabled, use the public front controller URL:
 
-### Trang trắng hoặc 500
+```text
+http://localhost/electronics_store/public/index.php
+```
 
-Chạy thử:
+## Useful Commands
+
+Check PHP syntax:
 
 ```bash
 php -l public/index.php
-php -l public/product_detail.php
-php -l config/app.php
+php -l app/bootstrap.php
+php -l app/Controllers/HomeController.php
+php -l app/Models/Product.php
+php -l resources/views/pages/home.php
 ```
 
-Và kiểm tra path include trong:
+Search for remaining Vietnamese UI strings:
 
-- `app/bootstrap.php`
-- `resources/views/layouts/`
+```bash
+rg "[À-ỹ]" app resources public/js config -n
+```
+
+Debug normalized product description output:
+
+```bash
+php scripts/debug_product_description.php 2
+```
+
+## Notes About Cart And Wishlist
+
+Cart and wishlist are stored in PHP sessions:
+
+```text
+$_SESSION['cart']
+$_SESSION['wishlist']
+```
+
+This does not conflict with the `orders` and `order_items` tables. The session cart is a temporary shopping state before checkout, while `orders` and `order_items` are intended for finalized purchases. The current schema does not include a persistent wishlist table.
+
+## Troubleshooting
+
+### Database Connection Failed
+
+Check:
+
+- MySQL/MariaDB is running.
+- The `electronics_store` database exists.
+- `config/database.php` matches your local database credentials.
+- Use `127.0.0.1` instead of `localhost` if PHP tries to connect through a missing MySQL socket.
+
+### Clean URLs Do Not Work In XAMPP
+
+Check:
+
+- Apache rewrite module is enabled.
+- `.htaccess` files are allowed by Apache configuration.
+- The project root contains `.htaccess`.
+- `public/.htaccess` exists.
+
+Fallback URL:
+
+```text
+http://localhost/electronics_store/public/index.php
+```
+
+### CSS Or JavaScript Does Not Load
+
+Check that these files exist:
+
+```text
+public/css/app.css
+public/js/app.js
+```
+
+Also check the generated asset URLs if the project is served from a subfolder such as `/electronics_store`.
+
+### Migration Fails With `No module named mysql`
+
+Activate the virtual environment and install dependencies:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+The required package is `mysql-connector-python`.
+
+### Product Detail Description Looks Wrong
+
+Descriptions are scraped HTML stored in the `products.description` field. The project normalizes and embeds that HTML in the product detail page, then styles it through `public/css/app.css`.
