@@ -46,6 +46,28 @@ class Product
         return $stmt->fetchAll();
     }
 
+    public static function featuredByIds(PDO $conn, array $ids): array
+    {
+        $productIds = array_values(array_unique(array_filter(array_map('intval', $ids))));
+
+        if (!$productIds) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $orderExpression = implode(',', $productIds);
+        $stmt = $conn->prepare(
+            "SELECT p.*, c.name AS category_name
+             FROM products p
+             JOIN categories c ON p.category_id = c.id
+             WHERE p.id IN ($placeholders)
+             ORDER BY FIELD(p.id, $orderExpression)"
+        );
+        $stmt->execute($productIds);
+
+        return $stmt->fetchAll();
+    }
+
     public static function paginate(PDO $conn, ?int $categoryId, string $search, string $sort, int $page, int $perPage): array
     {
         $baseQuery =

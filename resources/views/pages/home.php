@@ -109,20 +109,18 @@
 </section>
 
 <section class="mt-8 grid gap-5 lg:grid-cols-2">
-    <?php foreach ($promoProducts as $index => $product): ?>
+    <?php foreach ($promoCards as $promoCard): ?>
+        <?php $product = $promoCard['product']; ?>
+        <?php if (!$product) { continue; } ?>
         <article class="home-promo-card overflow-hidden rounded-[2rem] border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
             <div class="grid min-h-[220px] gap-6 p-6 sm:grid-cols-[1.2fr_0.8fr] sm:items-end">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo $index === 0 ? 'Upgrade' : 'Essentials'; ?></p>
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo htmlspecialchars($promoCard['eyebrow']); ?></p>
                     <h2 class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
-                        <?php echo $index === 0
-                            ? 'Upgrade Your Home Office'
-                            : 'Minimal Gaming Setup'; ?>
+                        <?php echo htmlspecialchars($promoCard['title']); ?>
                     </h2>
                     <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                        <?php echo $index === 0
-                            ? 'Build an efficient study and work setup with monitors, laptops, and accessories.'
-                            : 'Explore popular audio, gaming, and accessory picks.'; ?>
+                        <?php echo htmlspecialchars($promoCard['description']); ?>
                     </p>
                     <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary">
                         View collection
@@ -139,86 +137,6 @@
     <?php endforeach; ?>
 </section>
 
-<section class="mt-8">
-    <div class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Categories</p>
-                <h2 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">All Products</h2>
-            </div>
-            <div
-                class="category-pill-row flex flex-nowrap gap-3 overflow-x-auto pb-2 no-scrollbar lg:flex-wrap"
-                data-category-filters
-                data-category-endpoint="<?php echo url('filter_products.php'); ?>"
-            >
-                <button type="button" class="category-pill is-active" data-category-button data-category-id="all" aria-pressed="true">
-                    All
-                </button>
-                <?php foreach ($categories as $category): ?>
-                    <button type="button" class="category-pill" data-category-button data-category-id="<?php echo (int) $category['id']; ?>" aria-pressed="false">
-                        <?php echo htmlspecialchars($category['name']); ?>
-                    </button>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" data-product-grid>
-            <?php foreach ($products as $product): ?>
-                <div class="product-card group relative overflow-hidden rounded-[1.5rem] border border-slate-100 bg-white transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
-                    <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="block">
-                        <div class="relative flex aspect-square items-center justify-center overflow-hidden bg-slate-50 p-8 dark:bg-slate-900">
-                            <div class="absolute right-2 top-2 z-10 flex flex-col gap-2">
-                                <button onclick="event.preventDefault(); addToWishlist(<?php echo (int) $product['id']; ?>);" class="rounded-full bg-white/80 p-1.5 text-slate-600 shadow-sm backdrop-blur-sm transition-colors hover:text-red-500">
-                                    <span class="material-symbols-outlined text-xl">favorite</span>
-                                </button>
-                            </div>
-                            <?php if (!empty($product['image_url'])): ?>
-                                <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="max-h-full object-contain transition-transform duration-500 group-hover:scale-110">
-                            <?php else: ?>
-                                <span class="material-symbols-outlined text-slate-300" style="font-size: 80px;">image</span>
-                            <?php endif; ?>
-                            <div class="cart-button absolute inset-x-0 bottom-0 translate-y-4 p-4 opacity-0 transition-all duration-300">
-                                <button onclick="event.preventDefault(); addToCart(<?php echo (int) $product['id']; ?>);" class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-bold text-white shadow-lg shadow-primary/20">
-                                    <span class="material-symbols-outlined text-lg">add_shopping_cart</span> <?php echo t('add_to_cart'); ?>
-                                </button>
-                            </div>
-                        </div>
-                    </a>
-                    <div class="p-5">
-                        <span class="mb-1 block text-[10px] font-bold uppercase tracking-widest text-primary"><?php echo htmlspecialchars($product['category_name']); ?></span>
-                        <h2 class="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
-                            <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="line-clamp-2"><?php echo htmlspecialchars($product['name']); ?></a>
-                        </h2>
-                        <div class="mb-3 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm text-yellow-400" style="font-variation-settings: 'FILL' 1">star</span>
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400"><?php echo number_format((float) $product['rating'], 1); ?></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-lg font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($product['price']); ?></span>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
-<section class="mt-8 rounded-[2rem] border border-slate-200 bg-gradient-to-r from-slate-100 to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
-    <div class="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-        <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">Subscribe for Tech Deals</h2>
-            <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Get updates on new products, exclusive deals, and trending collections.
-            </p>
-        </div>
-        <form class="grid gap-3 sm:grid-cols-[1fr_auto]">
-            <input type="email" placeholder="Enter your email" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary dark:border-slate-700 dark:bg-slate-900">
-            <button type="button" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">
-                Subscribe
-            </button>
-        </form>
-    </div>
-</section>
 
 <section class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
     <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">

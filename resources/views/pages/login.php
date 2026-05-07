@@ -13,17 +13,18 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#ea580c',
+                        primary: '#0f6eeb',
+                        primaryDark: '#0b57c7',
                         ink: '#111827',
-                        mist: '#fff7ed',
-                        panel: '#fffaf5',
+                        mist: '#eff6ff',
+                        panel: '#f8fafc',
                     },
                     fontFamily: {
                         display: ['Space Grotesk', 'sans-serif'],
                         body: ['Manrope', 'sans-serif'],
                     },
                     boxShadow: {
-                        glow: '0 24px 70px rgba(234, 88, 12, 0.18)',
+                        glow: '0 24px 70px rgba(15, 110, 235, 0.18)',
                     }
                 }
             }
@@ -35,13 +36,13 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.22),_transparent_28%),linear-gradient(135deg,_#fff7ed_0%,_#ffffff_40%,_#fff1f2_100%)] font-body text-ink">
+<body class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(15,110,235,0.18),_transparent_30%),linear-gradient(135deg,_#f6f7f8_0%,_#ffffff_45%,_#eff6ff_100%)] font-body text-ink">
     <div class="min-h-screen grid lg:grid-cols-[1.05fr_0.95fr]">
         <section class="relative overflow-hidden px-6 py-8 sm:px-10 lg:px-14 lg:py-12">
             <div class="absolute inset-0 opacity-60">
-                <div class="absolute -left-16 top-24 h-52 w-52 rounded-full bg-amber-200 blur-3xl"></div>
-                <div class="absolute right-0 top-0 h-72 w-72 rounded-full bg-orange-200 blur-3xl"></div>
-                <div class="absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-rose-200 blur-3xl"></div>
+                <div class="absolute -left-16 top-24 h-52 w-52 rounded-full bg-sky-200 blur-3xl"></div>
+                <div class="absolute right-0 top-0 h-72 w-72 rounded-full bg-blue-200 blur-3xl"></div>
+                <div class="absolute bottom-0 left-1/3 h-56 w-56 rounded-full bg-slate-200 blur-3xl"></div>
             </div>
 
             <div class="relative z-10 mx-auto flex h-full max-w-2xl flex-col">
@@ -62,7 +63,7 @@
                 </div>
 
                 <div class="mt-12 lg:mt-20">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm backdrop-blur">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-sm font-semibold text-primary shadow-sm backdrop-blur">
                         <span class="material-symbols-outlined text-[18px]">verified_user</span>
                         Email sign-in with hashed password
                     </div>
@@ -79,7 +80,7 @@
                 <div class="mt-10 grid gap-4 sm:grid-cols-2">
                     <div class="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-sm backdrop-blur">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-100 text-primary">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-primary">
                                 <span class="material-symbols-outlined">mail</span>
                             </span>
                             <div>
@@ -91,7 +92,7 @@
 
                     <div class="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-sm backdrop-blur">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-100 text-primary">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-primary">
                                 <span class="material-symbols-outlined">lock</span>
                             </span>
                             <div>
@@ -161,7 +162,7 @@
                             <input id="login-password" name="password" type="password" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-primary focus:ring-primary" placeholder="••••••••">
                         </div>
 
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-orange-700">
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-primaryDark">
                             <span><?php echo t('sign_in'); ?></span>
                             <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                         </button>
@@ -204,7 +205,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-orange-700">
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-primaryDark">
                             <span><?php echo t('sign_up'); ?></span>
                             <span class="material-symbols-outlined text-[18px]">person_add</span>
                         </button>
@@ -237,14 +238,14 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-orange-700">
+                        <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-primaryDark">
                             <span>Update password</span>
                             <span class="material-symbols-outlined text-[18px]">lock_reset</span>
                         </button>
                     </form>
                 <?php endif; ?>
 
-                <div class="mt-6 rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-3 text-sm text-slate-600">
+                <div class="mt-6 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm text-slate-600">
                     PDF requirement: authenticate with email and password, validate email format and password length, and never store passwords in plain text.
                 </div>
             </div>

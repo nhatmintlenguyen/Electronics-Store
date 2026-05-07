@@ -7,14 +7,29 @@ class HomeController
     {
         $conn = getDBConnection();
         $categories = Category::all($conn);
-        $products = Product::latest($conn, 20);
+        $featuredProductIds = [1, 15, 67, 140];
+        $promoProductIds = [635, 436];
+        $promoProducts = Product::featuredByIds($conn, $promoProductIds);
+        $promoCards = [
+            [
+                'eyebrow' => 'Upgrade',
+                'title' => 'Upgrade Your Home Office',
+                'description' => 'Build an efficient study and work setup with monitors, laptops, and accessories.',
+                'product' => $promoProducts[0] ?? null,
+            ],
+            [
+                'eyebrow' => 'Essentials',
+                'title' => 'Minimal Gaming Setup',
+                'description' => 'Explore popular audio, gaming, and accessory picks.',
+                'product' => $promoProducts[1] ?? null,
+            ],
+        ];
 
         view('pages/home.php', [
             'page_title' => t('home'),
             'page_description' => 'TechStore homepage with a magazine-style layout, hero banner, categories, and featured products.',
             'totalProducts' => Product::countAll($conn),
-            'products' => $products,
-            'featuredProducts' => Product::featured($conn, 4),
+            'featuredProducts' => Product::featuredByIds($conn, $featuredProductIds),
             'categories' => $categories,
             'homeCategories' => array_slice($categories, 0, 6),
             'categoryIcons' => [
@@ -25,7 +40,7 @@ class HomeController
                 'sports_esports',
                 'memory',
             ],
-            'promoProducts' => array_slice($products, 0, 2),
+            'promoCards' => $promoCards,
         ]);
     }
 }
