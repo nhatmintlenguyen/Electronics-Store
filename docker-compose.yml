@@ -1,14 +1,14 @@
 services:
   app:
     image: xampp/app:8.4
-    container_name: xampp-app
+    container_name: electronics-store-app
     ports:
       - "8080:80"
     environment:
       WEB_DOCUMENT_ROOT: /app/public
       DB_HOST: db
       DB_PORT: 3306
-      DB_DATABASE: cv_management
+      DB_DATABASE: electronics_store
       DB_USERNAME: root
       DB_PASSWORD: root
     extra_hosts:
@@ -22,15 +22,15 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: onecv-db
+    container_name: electronics-store-db
     ports:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: cv_management
+      MYSQL_DATABASE: electronics_store
     volumes:
-      - onecv-db-data:/var/lib/mysql
-      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - electronics-store-db-data:/var/lib/mysql
+      - ./database/schema/database_setup.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
       interval: 5s
@@ -40,7 +40,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: onecv-phpmyadmin
+    container_name: electronics-store-phpmyadmin
     ports:
       - "8081:80"
     environment:
@@ -53,4 +53,4 @@ services:
     restart: always
 
 volumes:
-  onecv-db-data:
+  electronics-store-db-data:
