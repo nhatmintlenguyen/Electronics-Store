@@ -1,4 +1,3 @@
-<?php include VIEW_PATH . '/layouts/header.php'; ?>
 
 <nav class="mb-6 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
     <a class="transition-colors hover:text-primary" href="<?php echo url('index.php'); ?>"><?php echo t('home'); ?></a>
@@ -154,4 +153,3 @@
     </section>
 </div>
 
-<?php include VIEW_PATH . '/layouts/footer.php'; ?>

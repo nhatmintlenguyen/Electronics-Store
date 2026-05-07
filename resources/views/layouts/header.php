@@ -34,7 +34,7 @@
             },
         }
     </script>
-    <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
+    <link rel="stylesheet" href="<?php echo asset('css/app.css'); ?>">
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -45,10 +45,21 @@
 </head>
 <body data-app-base-url="<?php echo htmlspecialchars(url()); ?>" class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
     <?php
+    $requestPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+    $basePath = parse_url(appBaseUrl(), PHP_URL_PATH) ?: '';
+    if ($basePath !== '' && str_starts_with($requestPath, $basePath)) {
+        $requestPath = substr($requestPath, strlen($basePath));
+    }
+    $currentRoute = trim($requestPath, '/');
+    if (str_starts_with($currentRoute, 'public/')) {
+        $currentRoute = substr($currentRoute, strlen('public/'));
+    }
     $currentScript = basename((string) ($_SERVER['SCRIPT_NAME'] ?? ''));
-    $isHomeActive = $currentScript === 'index.php';
-    $isProductsActive = in_array($currentScript, ['products.php', 'product_detail.php'], true);
-    $isContactActive = $currentScript === 'contact.php';
+    $isHomeActive = in_array($currentRoute, ['', 'index.php'], true);
+    $isProductsActive = str_starts_with($currentRoute, 'products')
+        || str_starts_with($currentRoute, 'product/')
+        || in_array($currentScript, ['products.php', 'product_detail.php'], true);
+    $isContactActive = $currentRoute === 'contact' || $currentScript === 'contact.php';
     $navLinkClass = static function (bool $isActive): string {
         return $isActive
             ? 'text-sm font-semibold text-primary'

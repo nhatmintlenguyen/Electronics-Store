@@ -1,4 +1,3 @@
-<?php include VIEW_PATH . '/layouts/header.php'; ?>
 
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('wishlist'); ?></h1>
@@ -36,4 +35,3 @@
     </section>
 <?php endif; ?>
 
-<?php include VIEW_PATH . '/layouts/footer.php'; ?>

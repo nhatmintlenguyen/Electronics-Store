@@ -1,4 +1,3 @@
-<?php include VIEW_PATH . '/layouts/header.php'; ?>
 
 <section class="home-hero-panel overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="grid gap-3 lg:grid-cols-[1.35fr_0.65fr]">
@@ -251,4 +250,3 @@
     </article>
 </section>
 
-<?php include VIEW_PATH . '/layouts/footer.php'; ?>

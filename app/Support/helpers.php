@@ -4,10 +4,55 @@ declare(strict_types=1);
 function url(string $path = ''): string
 {
     $path = ltrim($path, '/');
+    $path = cleanRoutePath($path);
 
     return $path === ''
         ? appBaseUrl()
         : appBaseUrl() . '/' . $path;
+}
+
+function cleanRoutePath(string $path): string
+{
+    if ($path === '') {
+        return '';
+    }
+
+    $query = '';
+    $pathOnly = $path;
+
+    if (str_contains($path, '?')) {
+        [$pathOnly, $query] = explode('?', $path, 2);
+    }
+
+    $cleanPath = match ($pathOnly) {
+        'index.php' => '',
+        'products.php' => 'products',
+        'about.php' => 'about',
+        'contact.php' => 'contact',
+        'locations.php' => 'locations',
+        'login.php' => 'login',
+        'logout.php' => 'logout',
+        'profile.php' => 'profile',
+        'cart.php' => 'cart',
+        'wishlist.php' => 'wishlist',
+        'search_products.php' => 'search-products',
+        'filter_products.php' => 'filter-products',
+        'add_to_cart.php' => 'add-to-cart',
+        'add_to_wishlist.php' => 'add-to-wishlist',
+        default => $pathOnly,
+    };
+
+    if ($pathOnly === 'product_detail.php' && $query !== '') {
+        parse_str($query, $params);
+        if (!empty($params['id'])) {
+            $productId = (int) $params['id'];
+            unset($params['id']);
+            $cleanPath = 'product/' . $productId;
+            $query = http_build_query($params);
+        }
+    }
+
+    return $query === '' ? $cleanPath : $cleanPath . '?' . $query;
 }
 
 function asset(string $path): string
@@ -21,10 +66,9 @@ function redirectTo(string $path): void
     exit();
 }
 
-function view(string $template, array $data = []): void
+function view(string $template, array $data = [], ?string $layout = 'layouts/main.php'): void
 {
-    extract($data, EXTR_SKIP);
-    require VIEW_PATH . '/' . ltrim($template, '/');
+    App\Core\View::render($template, $data, $layout);
 }
 
 function isLoggedIn(): bool
@@ -155,7 +199,6 @@ function normalizeProductDescriptionHtml(?string $html): string
         '//*[contains(@class, "cps-block-content_btn-showmore")]',
         '//*[contains(@class, "block-content-product-right")]',
         '//*[contains(@class, "cps-block-boxProductTvc")]',
-        '//*[@id="cpsContent" and @style]',
         '//*[@class and contains(@class, "ksp-content")]',
     ] as $query) {
         $nodes = $xpath->query($query);

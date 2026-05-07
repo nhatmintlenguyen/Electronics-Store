@@ -1,42 +1,24 @@
 <?php
 declare(strict_types=1);
 
-const DB_HOST = '127.0.0.1';
-const DB_PORT = 3306;
-const DB_USER = 'root';
-const DB_PASS = '';
-const DB_NAME = 'electronics_store';
+use App\Core\Database;
 
 const SITE_NAME = 'Electronics Store';
 
 if (session_status() === PHP_SESSION_NONE) {
+    if (defined('STORAGE_PATH')) {
+        $sessionPath = STORAGE_PATH . '/sessions';
+        if (is_dir($sessionPath) && is_writable($sessionPath)) {
+            session_save_path($sessionPath);
+        }
+    }
+
     session_start();
 }
 
 function getDBConnection(): PDO
 {
-    static $connection = null;
-
-    if ($connection instanceof PDO) {
-        return $connection;
-    }
-
-    try {
-        $connection = new PDO(
-            'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
-            DB_USER,
-            DB_PASS,
-            [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            ]
-        );
-
-        return $connection;
-    } catch (PDOException $exception) {
-        http_response_code(500);
-        exit('Database connection failed: ' . $exception->getMessage());
-    }
+    return Database::connection();
 }
 
 function appBaseUrl(): string
@@ -51,6 +33,10 @@ function appBaseUrl(): string
     $publicPath = realpath(PUBLIC_PATH);
     $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
     $scriptDir = str_replace('\\', '/', dirname($scriptName));
+
+    if (str_ends_with($scriptDir, '/public')) {
+        $scriptDir = substr($scriptDir, 0, -strlen('/public'));
+    }
 
     if (!$scriptFilename || !$publicPath) {
         $baseUrl = rtrim($scriptDir, '/');

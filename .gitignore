@@ -21,6 +21,7 @@ Thumbs.db
 
 # Logs
 *.log
+storage/sessions/*
 
 # Sensitive data
 .env

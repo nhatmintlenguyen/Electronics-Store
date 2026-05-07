@@ -30,9 +30,9 @@ class ProductController
         ]));
     }
 
-    public function show(): void
+    public function show(string|int|null $id = null): void
     {
-        $productId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $productId = $id !== null ? (int) $id : (isset($_GET['id']) ? (int) $_GET['id'] : 0);
 
         if ($productId <= 0) {
             redirectTo('products.php');
@@ -50,15 +50,43 @@ class ProductController
             ?: 'Sản phẩm chất lượng cao với công nghệ tiên tiến và thiết kế hiện đại.';
         $productDescription = html_entity_decode($productDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $productDescription = normalizeProductDescriptionHtml($productDescription);
+        $productSpecifications = $this->decodeSpecifications($product['specification'] ?? $product['specifications'] ?? null);
 
         view('pages/product_detail.php', [
             'page_title' => $product['name'],
             'productId' => $productId,
             'product' => $product,
             'productDescription' => $productDescription,
+            'productSpecifications' => $productSpecifications,
             'productLocations' => $productLocations,
             'availableLocationCount' => count($productLocations),
             'relatedProducts' => Product::related($conn, (int) $product['category_id'], $productId, 4),
         ]);
+    }
+
+    private function decodeSpecifications(mixed $rawSpecifications): array
+    {
+        if (!is_string($rawSpecifications) || trim($rawSpecifications) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($rawSpecifications, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $specifications = [];
+        foreach ($decoded as $label => $value) {
+            if (!is_string($label) || $label === '') {
+                continue;
+            }
+
+            $specifications[$label] = is_array($value)
+                ? implode(', ', array_map('strval', $value))
+                : (string) $value;
+        }
+
+        return $specifications;
     }
 }

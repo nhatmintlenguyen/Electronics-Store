@@ -1,66 +1,3 @@
-<?php include VIEW_PATH . '/layouts/header.php'; ?>
-
-<style>
-    .product-description {
-        display: flow-root;
-        overflow-wrap: anywhere;
-    }
-
-    .product-description > :first-child {
-        margin-top: 0 !important;
-    }
-
-    .product-description > :last-child {
-        margin-bottom: 0 !important;
-    }
-
-    .product-description::after {
-        content: "";
-        display: block;
-        clear: both;
-    }
-
-    .product-description img,
-    .product-description table,
-    .product-description iframe,
-    .product-description video {
-        max-width: 100% !important;
-        height: auto !important;
-    }
-
-    .product-description img,
-    .product-description iframe,
-    .product-description video {
-        display: block !important;
-        margin: 1rem auto !important;
-    }
-
-    .product-description table {
-        display: table;
-        width: 100% !important;
-        border-collapse: collapse;
-    }
-
-    .product-description .table-container,
-    .product-description .seo-table {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
-    }
-
-    .product-description td,
-    .product-description th {
-        border: 1px solid rgb(226 232 240);
-        padding: 0.75rem;
-        vertical-align: top;
-    }
-
-    .product-description a {
-        color: rgb(15 110 235);
-        text-decoration: underline;
-    }
-</style>
 
 <nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-8">
     <a class="hover:text-primary" href="<?php echo url('index.php'); ?>"><?php echo t('home'); ?></a>
@@ -173,16 +110,59 @@
     </div>
 </div>
 
-<section class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
+<section class="mt-10">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Thông số</p>
+                <h2 class="mt-2 text-xl font-bold text-slate-900 dark:text-white">Thông số kỹ thuật</h2>
+            </div>
+            <?php if (!empty($productSpecifications)): ?>
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <?php echo count($productSpecifications); ?> mục
+                </span>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($productSpecifications)): ?>
+            <div class="product-specification-table overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+                <table>
+                    <tbody>
+                        <?php foreach ($productSpecifications as $label => $value): ?>
+                            <tr>
+                                <th scope="row"><?php echo htmlspecialchars($label); ?></th>
+                                <td><?php echo nl2br(htmlspecialchars($value)); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                Sản phẩm này hiện chưa có thông số kỹ thuật trong hệ thống.
+            </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+<section class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
     <div class="lg:col-span-7">
-        <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h2 class="mb-5 text-xl font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></h2>
-            <div class="product-description prose prose-slate max-w-none text-sm leading-relaxed dark:prose-invert prose-p:text-slate-600 prose-li:text-slate-600 dark:prose-p:text-slate-400 dark:prose-li:text-slate-400">
+        <details class="product-description-toggle rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <summary>
+                <span>
+                    <span class="block text-xs font-bold uppercase tracking-[0.2em] text-primary">Mô tả</span>
+                    <span class="mt-2 block text-xl font-bold text-slate-900 dark:text-white"><?php echo t('description'); ?></span>
+                </span>
+                <span class="product-description-toggle-action">
+                    <span class="product-description-toggle-label">Xem thêm mô tả</span>
+                    <span class="product-description-toggle-icon material-symbols-outlined">expand_more</span>
+                </span>
+            </summary>
+            <div class="product-description mt-6 prose prose-slate max-w-none text-sm leading-relaxed dark:prose-invert prose-p:text-slate-600 prose-li:text-slate-600 dark:prose-p:text-slate-400 dark:prose-li:text-slate-400">
                 <?php echo $productDescription !== '' ? $productDescription : '<p>Chưa có mô tả cho sản phẩm này.</p>'; ?>
             </div>
-        </div>
+        </details>
     </div>
-
     <div class="lg:col-span-5">
         <div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div class="mb-5 flex items-center justify-between gap-3">
@@ -223,7 +203,7 @@
                                         rel="noopener noreferrer"
                                         class="shrink-0 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
                                     >
-                                        <?php echo getCurrentLanguage() === 'vi' ? 'Xem ban do' : 'Open map'; ?>
+                                        <?php echo getCurrentLanguage() === 'vi' ? 'Xem bản đồ' : 'Open map'; ?>
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -304,4 +284,3 @@
     }
 </script>
 
-<?php include VIEW_PATH . '/layouts/footer.php'; ?>

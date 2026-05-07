@@ -35,7 +35,13 @@ class AuthController
                 'forgot' => t('forgot_password'),
                 default => t('login'),
             },
-        ]));
+        ]), null);
+    }
+
+    public function logout(): void
+    {
+        session_destroy();
+        redirectTo('');
     }
 
     private function handlePost(string $mode, array &$data): string

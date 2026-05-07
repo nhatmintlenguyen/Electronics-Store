@@ -1,4 +1,3 @@
-<?php include VIEW_PATH . '/layouts/header.php'; ?>
 
 <section class="grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr]">
     <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -58,4 +57,3 @@
     </aside>
 </section>
 
-<?php include VIEW_PATH . '/layouts/footer.php'; ?>
