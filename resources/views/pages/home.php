@@ -7,7 +7,7 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/58 to-slate-900/20"></div>
             </div>
             <div class="relative z-10 max-w-md">
-                <span class="mb-4 inline-flex rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white">Hàng mới về</span>
+                <span class="mb-4 inline-flex rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white">New Arrival</span>
                 <h1 class="text-4xl font-black leading-[1.05] text-white sm:text-5xl">
                     <?php echo t('welcome_title'); ?>
                 </h1>
@@ -29,10 +29,10 @@
             <div class="rounded-[1.6rem] bg-slate-50 p-6 dark:bg-slate-800/80">
                 <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">TechStore</p>
                 <p class="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                    Trang chủ hiển thị toàn bộ sản phẩm theo dạng lưới ngắn gọn để người dùng duyệt nhanh và dễ theo dõi hơn.
+                    The homepage shows all products in a compact grid so customers can browse quickly and easily.
                 </p>
                 <div class="mt-6 inline-flex rounded-full bg-white px-4 py-2 text-sm text-slate-600 shadow-sm dark:bg-slate-900 dark:text-slate-300" data-total-products-badge>
-                    Tổng sản phẩm:
+                    Total products:
                     <span class="ml-2 font-bold text-slate-900 dark:text-white" data-total-products-value><?php echo number_format($totalProducts); ?></span>
                 </div>
             </div>
@@ -43,10 +43,10 @@
                     <span class="material-symbols-outlined">local_shipping</span>
                 </div>
                 <p class="mt-6 text-2xl font-black leading-tight">
-                    Miễn phí giao hàng cho đơn từ 1.000.000₫
+                    Free shipping for orders over 1,000,000₫
                 </p>
                 <p class="mt-3 text-sm text-white/80">
-                    Mua sắm nhanh, theo dõi sản phẩm và kiểm tra cửa hàng còn hàng ngay trên website.
+                    Shop quickly, track products, and check in-store availability directly on the website.
                 </p>
             </div>
         </div>
@@ -75,8 +75,8 @@
 <section class="mt-8 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="mb-5 flex items-center justify-between">
         <div>
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Nổi bật</p>
-            <h2 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">Sản phẩm nổi bật</h2>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Featured</p>
+            <h2 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">Featured Products</h2>
         </div>
     </div>
 
@@ -113,19 +113,19 @@
         <article class="home-promo-card overflow-hidden rounded-[2rem] border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
             <div class="grid min-h-[220px] gap-6 p-6 sm:grid-cols-[1.2fr_0.8fr] sm:items-end">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo $index === 0 ? 'Nâng cấp' : 'Thiết yếu'; ?></p>
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo $index === 0 ? 'Upgrade' : 'Essentials'; ?></p>
                     <h2 class="mt-3 text-2xl font-black text-slate-900 dark:text-white">
                         <?php echo $index === 0
-                            ? 'Nâng cấp góc làm việc tại nhà'
-                            : 'Góc gaming tối giản'; ?>
+                            ? 'Upgrade Your Home Office'
+                            : 'Minimal Gaming Setup'; ?>
                     </h2>
                     <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                         <?php echo $index === 0
-                            ? 'Không gian học tập và làm việc hiệu quả với các thiết bị màn hình, laptop và phụ kiện.'
-                            : 'Chọn các thiết bị âm thanh, gaming và phụ kiện đang được quan tâm nhất.'; ?>
+                            ? 'Build an efficient study and work setup with monitors, laptops, and accessories.'
+                            : 'Explore popular audio, gaming, and accessory picks.'; ?>
                     </p>
                     <a href="<?php echo url('product_detail.php?id=' . $product['id']); ?>" class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary">
-                        Xem bộ sưu tập
+                        View collection
                         <span class="material-symbols-outlined text-base">arrow_forward</span>
                     </a>
                 </div>
@@ -143,8 +143,8 @@
     <div class="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Danh mục</p>
-                <h2 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">Tất cả sản phẩm</h2>
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">Categories</p>
+                <h2 class="mt-2 text-2xl font-black text-slate-900 dark:text-white">All Products</h2>
             </div>
             <div
                 class="category-pill-row flex flex-nowrap gap-3 overflow-x-auto pb-2 no-scrollbar lg:flex-wrap"
@@ -152,7 +152,7 @@
                 data-category-endpoint="<?php echo url('filter_products.php'); ?>"
             >
                 <button type="button" class="category-pill is-active" data-category-button data-category-id="all" aria-pressed="true">
-                    Tất cả
+                    All
                 </button>
                 <?php foreach ($categories as $category): ?>
                     <button type="button" class="category-pill" data-category-button data-category-id="<?php echo (int) $category['id']; ?>" aria-pressed="false">
@@ -206,15 +206,15 @@
 <section class="mt-8 rounded-[2rem] border border-slate-200 bg-gradient-to-r from-slate-100 to-slate-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:to-slate-800">
     <div class="grid gap-6 lg:grid-cols-[1fr_0.9fr] lg:items-center">
         <div>
-            <h2 class="text-2xl font-black text-slate-900 dark:text-white">Đăng ký nhận ưu đãi công nghệ</h2>
+            <h2 class="text-2xl font-black text-slate-900 dark:text-white">Subscribe for Tech Deals</h2>
             <p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Nhận cập nhật về sản phẩm mới, ưu đãi độc quyền và các bộ sưu tập đang được quan tâm.
+                Get updates on new products, exclusive deals, and trending collections.
             </p>
         </div>
         <form class="grid gap-3 sm:grid-cols-[1fr_auto]">
-            <input type="email" placeholder="Nhập email của bạn" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary dark:border-slate-700 dark:bg-slate-900">
+            <input type="email" placeholder="Enter your email" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary dark:border-slate-700 dark:bg-slate-900">
             <button type="button" class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">
-                Đăng ký
+                Subscribe
             </button>
         </form>
     </div>
@@ -234,8 +234,8 @@
         <div class="flex items-center gap-3">
             <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary"><span class="material-symbols-outlined">support_agent</span></span>
             <div>
-                <h3 class="font-bold text-slate-900 dark:text-white">Hỗ trợ 24/7</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Tư vấn nhanh và hỗ trợ sau bán hàng.</p>
+                <h3 class="font-bold text-slate-900 dark:text-white">24/7 Support</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Fast consultation and after-sales support.</p>
             </div>
         </div>
     </article>
@@ -243,10 +243,9 @@
         <div class="flex items-center gap-3">
             <span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary"><span class="material-symbols-outlined">verified_user</span></span>
             <div>
-                <h3 class="font-bold text-slate-900 dark:text-white">Thanh toán an toàn</h3>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Bảo mật thanh toán và thông tin tài khoản.</p>
+                <h3 class="font-bold text-slate-900 dark:text-white">Secure Payment</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Protected payments and account information.</p>
             </div>
         </div>
     </article>
 </section>
-

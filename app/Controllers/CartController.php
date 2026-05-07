@@ -28,7 +28,7 @@ class CartController
 
         view('pages/cart.php', [
             'page_title' => t('cart'),
-            'page_description' => 'Giỏ hàng lưu trong session với danh sách sản phẩm đã chọn.',
+            'page_description' => 'Session-based cart containing selected products.',
             'cartItems' => $cartItems,
             'cartTotal' => $cartTotal,
         ]);

@@ -48,8 +48,8 @@ class Router
 
         http_response_code(404);
         View::render('pages/not_found.php', [
-            'page_title' => 'Không tìm thấy trang',
-            'page_description' => 'Trang bạn yêu cầu không tồn tại.',
+            'page_title' => 'Page Not Found',
+            'page_description' => 'The page you requested does not exist.',
         ]);
     }
 

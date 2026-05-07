@@ -6,7 +6,7 @@
     <title><?php echo isset($page_title) ? $page_title . ' - ' . SITE_NAME : SITE_NAME; ?></title>
     <meta
         name="description"
-        content="<?php echo htmlspecialchars($page_description ?? 'TechStore là website điện tử động, hỗ trợ tìm kiếm AJAX, danh mục sản phẩm, vị trí cửa hàng và mua sắm trực tuyến.'); ?>"
+        content="<?php echo htmlspecialchars($page_description ?? 'TechStore is a dynamic electronics website with AJAX search, product categories, store locations, and online shopping.'); ?>"
     >
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -69,11 +69,11 @@
     <div class="topbar border-b border-slate-200/80 bg-slate-950 text-slate-100 dark:border-slate-800 dark:bg-black">
         <div class="max-w-7xl mx-auto flex min-h-9 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <p class="topbar-copy truncate text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300">
-                Thiết bị điện tử cao cấp và phụ kiện công nghệ chính hãng
+                Premium electronics and authentic tech accessories
             </p>
             <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-100">
                 <span class="material-symbols-outlined text-sm text-primary">local_shipping</span>
-                <span class="whitespace-nowrap">Miễn phí Ship cho đơn hàng trên 1,000,000₫</span>
+                <span class="whitespace-nowrap">Free shipping for orders over 1,000,000₫</span>
             </div>
         </div>
     </div>

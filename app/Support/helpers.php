@@ -139,15 +139,15 @@ function categoryIconName(string $categoryName): string
     };
 }
 
-function authText(string $vi, string $en): string
+function authText(string $unused, string $en): string
 {
-    return getCurrentLanguage() === 'vi' ? $vi : $en;
+    return $en;
 }
 
 function passwordValidationError(string $password): string
 {
     if (strlen($password) < 8) {
-        return authText('Mật khẩu phải có ít nhất 8 ký tự.', 'Password must be at least 8 characters long.');
+        return 'Password must be at least 8 characters long.';
     }
 
     return '';

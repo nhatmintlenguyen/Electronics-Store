@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title . ' - ' . SITE_NAME); ?></title>
-    <meta name="description" content="<?php echo htmlspecialchars(authText('Đăng nhập hoặc tạo tài khoản để mua sắm tại TechStore.', 'Sign in or create an account to shop at TechStore.')); ?>">
+    <meta name="description" content="Sign in or create an account to shop at TechStore.">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -52,32 +52,27 @@
                         </span>
                         <span>
                             <span class="block font-display text-xl font-bold tracking-tight">TechStore</span>
-                            <span class="block text-sm text-slate-500"><?php echo authText('Hệ thống điện tử học kỳ 6', 'Semester 6 electronics storefront'); ?></span>
+                            <span class="block text-sm text-slate-500">Semester 6 electronics storefront</span>
                         </span>
                     </a>
 
-                    <div class="rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold shadow-sm backdrop-blur">
-                        <a href="?mode=<?php echo urlencode($mode); ?>&lang=vi" class="<?php echo getCurrentLanguage() === 'vi' ? 'text-primary' : 'text-slate-400'; ?>">VI</a>
-                        <span class="mx-2 text-slate-300">|</span>
-                        <a href="?mode=<?php echo urlencode($mode); ?>&lang=en" class="<?php echo getCurrentLanguage() === 'en' ? 'text-primary' : 'text-slate-400'; ?>">EN</a>
+                    <div class="rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-semibold text-primary shadow-sm backdrop-blur">
+                        EN
                     </div>
                 </div>
 
                 <div class="mt-12 lg:mt-20">
                     <div class="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm backdrop-blur">
                         <span class="material-symbols-outlined text-[18px]">verified_user</span>
-                        <?php echo authText('Đăng nhập bằng email và mật khẩu đã mã hóa', 'Email sign-in with hashed password'); ?>
+                        Email sign-in with hashed password
                     </div>
 
                     <h1 class="mt-6 max-w-xl font-display text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
-                        <?php echo authText('Hoàn thiện hệ thống xác thực người dùng cho Electronics Store.', 'Complete the user authentication flow for Electronics Store.'); ?>
+                        Complete the user authentication flow for Electronics Store.
                     </h1>
 
                     <p class="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-                        <?php echo authText(
-                            'Theo yêu cầu của đồ án, trang này hỗ trợ đăng ký, đăng nhập, đăng xuất và quên mật khẩu với kiểm tra dữ liệu đầu vào.',
-                            'This page implements the assignment requirement for register, login, logout, and forgot-password flows with input validation.'
-                        ); ?>
+                        This page implements the assignment requirement for register, login, logout, and forgot-password flows with input validation.
                     </p>
                 </div>
 
@@ -88,8 +83,8 @@
                                 <span class="material-symbols-outlined">mail</span>
                             </span>
                             <div>
-                                <p class="font-display text-lg font-bold"><?php echo authText('Đăng nhập bằng email', 'Email-based sign in'); ?></p>
-                                <p class="text-sm text-slate-500"><?php echo authText('Đúng với yêu cầu trong PDF', 'Matches the PDF requirement'); ?></p>
+                                <p class="font-display text-lg font-bold">Email-based sign in</p>
+                                <p class="text-sm text-slate-500">Matches the PDF requirement</p>
                             </div>
                         </div>
                     </div>
@@ -100,8 +95,8 @@
                                 <span class="material-symbols-outlined">lock</span>
                             </span>
                             <div>
-                                <p class="font-display text-lg font-bold"><?php echo authText('Mật khẩu không lưu dạng thô', 'Passwords are not stored in plain text'); ?></p>
-                                <p class="text-sm text-slate-500"><?php echo authText('Dùng SHA-256 theo helper hiện tại', 'Uses the current SHA-256 helper'); ?></p>
+                                <p class="font-display text-lg font-bold">Passwords are not stored in plain text</p>
+                                <p class="text-sm text-slate-500">Uses the current SHA-256 helper</p>
                             </div>
                         </div>
                     </div>
@@ -109,7 +104,7 @@
 
                 <div class="mt-auto hidden pt-12 lg:block">
                     <p class="text-sm text-slate-500">
-                        <?php echo authText('Tài khoản mẫu sau khi migrate dữ liệu:', 'Sample seeded accounts after data migration:'); ?>
+                        Sample seeded accounts after data migration:
                         <span class="font-semibold text-slate-700">`admin@electronics.local / admin123`</span>
                         <span class="mx-2 text-slate-300">•</span>
                         <span class="font-semibold text-slate-700">`customer1@electronics.local / pass1234`</span>
@@ -146,8 +141,8 @@
 
                 <?php if ($mode === 'login'): ?>
                     <div class="mb-6">
-                        <h2 class="font-display text-3xl font-bold"><?php echo authText('Đăng nhập tài khoản', 'Sign in to your account'); ?></h2>
-                        <p class="mt-2 text-sm text-slate-500"><?php echo authText('Đăng nhập bằng email và mật khẩu.', 'Use your email and password to continue.'); ?></p>
+                        <h2 class="font-display text-3xl font-bold">Sign in to your account</h2>
+                        <p class="mt-2 text-sm text-slate-500">Use your email and password to continue.</p>
                     </div>
 
                     <form method="POST" class="space-y-5">
@@ -175,8 +170,8 @@
 
                 <?php if ($mode === 'register'): ?>
                     <div class="mb-6">
-                        <h2 class="font-display text-3xl font-bold"><?php echo authText('Tạo tài khoản mới', 'Create a new account'); ?></h2>
-                        <p class="mt-2 text-sm text-slate-500"><?php echo authText('Đăng ký bằng email hợp lệ và mật khẩu tối thiểu 8 ký tự.', 'Register with a valid email and a password of at least 8 characters.'); ?></p>
+                        <h2 class="font-display text-3xl font-bold">Create a new account</h2>
+                        <p class="mt-2 text-sm text-slate-500">Register with a valid email and a password of at least 8 characters.</p>
                     </div>
 
                     <form method="POST" class="space-y-5">
@@ -188,7 +183,7 @@
                         </div>
 
                         <div>
-                            <label for="register-username" class="mb-2 block text-sm font-bold text-slate-700"><?php echo authText('Tên đăng nhập', 'Username'); ?></label>
+                            <label for="register-username" class="mb-2 block text-sm font-bold text-slate-700">Username</label>
                             <input id="register-username" name="username" type="text" value="<?php echo htmlspecialchars($registerUsername); ?>" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                         </div>
 
@@ -218,8 +213,8 @@
 
                 <?php if ($mode === 'forgot'): ?>
                     <div class="mb-6">
-                        <h2 class="font-display text-3xl font-bold"><?php echo authText('Đặt lại mật khẩu', 'Reset your password'); ?></h2>
-                        <p class="mt-2 text-sm text-slate-500"><?php echo authText('Nhập email và mật khẩu mới để cập nhật tài khoản.', 'Enter your email and a new password to update the account.'); ?></p>
+                        <h2 class="font-display text-3xl font-bold">Reset your password</h2>
+                        <p class="mt-2 text-sm text-slate-500">Enter your email and a new password to update the account.</p>
                     </div>
 
                     <form method="POST" class="space-y-5">
@@ -232,7 +227,7 @@
 
                         <div class="grid gap-5 sm:grid-cols-2">
                             <div>
-                                <label for="forgot-password" class="mb-2 block text-sm font-bold text-slate-700"><?php echo authText('Mật khẩu mới', 'New password'); ?></label>
+                                <label for="forgot-password" class="mb-2 block text-sm font-bold text-slate-700">New password</label>
                                 <input id="forgot-password" name="new_password" type="password" required class="w-full rounded-2xl border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                             </div>
 
@@ -243,17 +238,14 @@
                         </div>
 
                         <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 font-bold text-white transition hover:bg-orange-700">
-                            <span><?php echo authText('Cập nhật mật khẩu', 'Update password'); ?></span>
+                            <span>Update password</span>
                             <span class="material-symbols-outlined text-[18px]">lock_reset</span>
                         </button>
                     </form>
                 <?php endif; ?>
 
                 <div class="mt-6 rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-3 text-sm text-slate-600">
-                    <?php echo authText(
-                        'Yêu cầu PDF: xác thực bằng email và mật khẩu, kiểm tra định dạng email, độ dài mật khẩu, và không lưu mật khẩu dạng thô.',
-                        'PDF requirement: authenticate with email and password, validate email format and password length, and never store passwords in plain text.'
-                    ); ?>
+                    PDF requirement: authenticate with email and password, validate email format and password length, and never store passwords in plain text.
                 </div>
             </div>
         </section>

@@ -2,10 +2,10 @@
 <section class="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <p class="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">TechStore</p>
     <h1 class="text-3xl font-black text-slate-900 dark:text-white">
-        Hệ thống cửa hàng
+        Store Locations
     </h1>
     <p class="mt-3 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-        Kiểm tra địa chỉ, khu vực và mở nhanh Google Maps cho từng cửa hàng.
+        Check addresses, areas, and open Google Maps quickly for each store.
     </p>
 </section>
 
@@ -31,7 +31,7 @@
                 </p>
                 <p class="flex items-start gap-2">
                     <span class="material-symbols-outlined text-lg text-slate-400">schedule</span>
-                    <span>Mở cửa 09:00 - 21:00 mỗi ngày</span>
+                    <span>Open daily from 09:00 to 21:00</span>
                 </p>
             </div>
 
@@ -43,7 +43,7 @@
                     class="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
                 >
                     <span class="material-symbols-outlined text-lg">map</span>
-                    Mở Google Maps
+                    Open Google Maps
                 </a>
             <?php endif; ?>
         </article>

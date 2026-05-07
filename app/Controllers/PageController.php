@@ -7,7 +7,7 @@ class PageController
     {
         view('pages/about.php', [
             'page_title' => t('about_us'),
-            'page_description' => 'Thông tin giới thiệu về TechStore và cách website đáp ứng yêu cầu đồ án.',
+            'page_description' => 'Information about TechStore and how the website meets the project requirements.',
         ]);
     }
 
@@ -15,15 +15,15 @@ class PageController
     {
         view('pages/contact.php', [
             'page_title' => t('contact'),
-            'page_description' => 'Thông tin liên hệ, giới thiệu website và cách kết nối với TechStore.',
+            'page_description' => 'Contact information, website overview, and ways to connect with TechStore.',
         ]);
     }
 
     public function locations(): void
     {
         view('pages/locations.php', [
-            'page_title' => 'Cửa hàng',
-            'page_description' => 'Danh sách các cửa hàng TechStore kèm địa chỉ và liên kết Google Maps.',
+            'page_title' => 'Stores',
+            'page_description' => 'List of TechStore locations with addresses and Google Maps links.',
             'locations' => Location::all(getDBConnection()),
         ]);
     }
@@ -40,7 +40,7 @@ class PageController
 
         view('pages/profile.php', [
             'page_title' => t('profile'),
-            'page_description' => 'Thông tin tài khoản người dùng đang đăng nhập tại TechStore.',
+            'page_description' => 'Account information for the currently signed-in TechStore user.',
             'user' => $user,
         ]);
     }

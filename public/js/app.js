@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function syncLabel() {
-            label.textContent = toggle.open ? 'Thu gọn mô tả' : 'Xem thêm mô tả';
+            label.textContent = toggle.open ? 'Collapse description' : 'View description';
         }
 
         syncLabel();
@@ -88,14 +88,14 @@ async function addToCart(productId, quantity = 1) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(data.message || 'Đã thêm sản phẩm vào giỏ hàng.', 'success');
+            showToast(data.message || 'Product added to cart.', 'success');
             updateCartCount(data.cart_count);
         } else {
-            showToast(data.message || 'Không thể thêm sản phẩm vào giỏ hàng.', 'error');
+            showToast(data.message || 'Unable to add product to cart.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('Đã xảy ra lỗi.', 'error');
+        showToast('Something went wrong.', 'error');
     }
 }
 
@@ -124,13 +124,13 @@ async function addToWishlist(productId) {
         const data = await response.json();
 
         if (data.success) {
-            showToast(data.message || 'Đã thêm vào yêu thích.', 'success');
+            showToast(data.message || 'Added to wishlist.', 'success');
         } else {
-            showToast(data.message || 'Không thể thêm vào yêu thích.', 'error');
+            showToast(data.message || 'Unable to add to wishlist.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('Đã xảy ra lỗi.', 'error');
+        showToast('Something went wrong.', 'error');
     }
 }
 
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!products.length) {
             searchResultsList.innerHTML = `
                 <div class="px-4 py-5 text-sm text-slate-500 dark:text-slate-400">
-                    Không tìm thấy sản phẩm cho "<span class="font-semibold">${escapeHtml(query)}</span>".
+                    No products found for "<span class="font-semibold">${escapeHtml(query)}</span>".
                 </div>
             `;
             showSearchResults();
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (!response.ok) {
-                throw new Error(`Yêu cầu tìm kiếm thất bại với mã ${response.status}`);
+                throw new Error(`Search request failed with status ${response.status}`);
             }
 
             const data = await response.json();
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Search error:', error);
             searchResultsList.innerHTML = `
                 <div class="px-4 py-5 text-sm text-red-500">
-                    Không thể tải kết quả tìm kiếm.
+                    Unable to load search results.
                 </div>
             `;
             showSearchResults();
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const initialGridMarkup = productGrid.innerHTML;
     const initialTotalProductsText = totalProductsValue ? totalProductsValue.textContent : '';
     const initialPaginationMarkup = pagination ? pagination.innerHTML : '';
-    const language = document.documentElement.lang === 'vi' ? 'vi' : 'en';
+    const language = 'en';
     let activeCategoryId = 'all';
 
     categoryButtons.forEach(button => {
@@ -482,7 +482,7 @@ async function fetchProductsByCategory(categoryId, options) {
         : renderEmptyProducts(language);
 
     if (totalProductsValue) {
-        totalProductsValue.textContent = new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US')
+        totalProductsValue.textContent = new Intl.NumberFormat('en-US')
             .format(Number(data.total_products || 0));
     }
 
@@ -501,14 +501,14 @@ async function fetchProductsByCategory(categoryId, options) {
     }
 }
 
-function renderProductCard(product, language = 'vi') {
+function renderProductCard(product, language = 'en') {
     const categoryName = escapeHtml(product.category_name || '');
     const productName = escapeHtml(product.name || '');
     const imageUrl = product.image_url ? escapeAttribute(product.image_url) : '';
     const productId = Number(product.id);
     const productPrice = formatCurrency(product.price || 0);
     const productRating = Number(product.rating || 0).toFixed(1);
-    const addToCartLabel = language === 'vi' ? 'Them vao gio' : 'Add to cart';
+    const addToCartLabel = 'Add to cart';
 
     return `
         <div class="product-card group relative overflow-hidden rounded-xl border border-slate-100 bg-white transition-all duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
@@ -546,9 +546,9 @@ function renderProductCard(product, language = 'vi') {
     `;
 }
 
-function renderEmptyProducts(language = 'vi') {
-    const title = 'Không có sản phẩm trong danh mục này';
-    const description = 'Hãy thử chọn một danh mục khác.';
+function renderEmptyProducts(language = 'en') {
+    const title = 'No products in this category';
+    const description = 'Try choosing another category.';
 
     return `
         <div class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
@@ -558,13 +558,13 @@ function renderEmptyProducts(language = 'vi') {
     `;
 }
 
-function renderCategoryPagination({ currentPage = 1, totalPages = 1, language = 'vi' }) {
+function renderCategoryPagination({ currentPage = 1, totalPages = 1, language = 'en' }) {
     if (totalPages <= 1) {
         return '';
     }
 
-    const prevLabel = language === 'vi' ? 'Trước' : 'Previous';
-    const nextLabel = language === 'vi' ? 'Sau' : 'Next';
+    const prevLabel = 'Previous';
+    const nextLabel = 'Next';
     const range = 2;
     const startPage = Math.max(1, currentPage - range);
     const endPage = Math.min(totalPages, currentPage + range);

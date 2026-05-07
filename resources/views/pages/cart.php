@@ -2,7 +2,7 @@
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('cart'); ?></h1>
     <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
-        Giỏ hàng hiện tại được lưu trong session để phục vụ demo đồ án.
+        Your current cart is stored in the session for this project demo.
     </p>
 </section>
 
@@ -21,7 +21,7 @@
                     <div class="min-w-0 flex-1">
                         <p class="text-[10px] font-bold uppercase tracking-widest text-primary"><?php echo htmlspecialchars($product['category_name']); ?></p>
                         <h2 class="mt-1 text-sm font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($product['name']); ?></h2>
-                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Số lượng: <?php echo $item['quantity']; ?></p>
+                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Quantity: <?php echo $item['quantity']; ?></p>
                         <p class="mt-2 text-lg font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($item['line_total']); ?></p>
                     </div>
                 </article>
@@ -31,14 +31,13 @@
         <aside class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-xl font-bold text-slate-900 dark:text-white"><?php echo t('checkout'); ?></h2>
             <div class="mt-5 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-                <span>Tổng cộng</span>
+                <span>Total</span>
                 <span class="text-xl font-black text-slate-900 dark:text-white"><?php echo formatPriceVND($cartTotal); ?></span>
             </div>
         </aside>
     </section>
 <?php else: ?>
     <section class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Giỏ hàng đang trống</h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Your cart is empty</h2>
     </section>
 <?php endif; ?>
-

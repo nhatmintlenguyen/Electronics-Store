@@ -22,7 +22,7 @@ class ProductController
 
         view('pages/products.php', array_merge($pagination, [
             'page_title' => t('products'),
-            'page_description' => 'Danh mục sản phẩm TechStore với bộ lọc, sắp xếp và phân trang.',
+            'page_description' => 'TechStore product catalog with filters, sorting, and pagination.',
             'categoryFilter' => $categoryFilter,
             'search' => $search,
             'sort' => $sort,
@@ -47,7 +47,7 @@ class ProductController
 
         $productLocations = Location::forProduct($conn, $productId);
         $productDescription = $product['description']
-            ?: 'Sản phẩm chất lượng cao với công nghệ tiên tiến và thiết kế hiện đại.';
+            ?: 'High-quality product with advanced technology and modern design.';
         $productDescription = html_entity_decode($productDescription, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $productDescription = normalizeProductDescriptionHtml($productDescription);
         $productSpecifications = $this->decodeSpecifications($product['specification'] ?? $product['specifications'] ?? null);

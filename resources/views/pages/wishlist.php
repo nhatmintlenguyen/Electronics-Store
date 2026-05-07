@@ -2,7 +2,7 @@
 <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <h1 class="text-3xl font-black text-slate-900 dark:text-white"><?php echo t('wishlist'); ?></h1>
     <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
-        Danh sách sản phẩm bạn đã lưu trong phiên hiện tại.
+        Products saved in your current session.
     </p>
 </section>
 
@@ -31,7 +31,6 @@
     </section>
 <?php else: ?>
     <section class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Chưa có sản phẩm yêu thích</h2>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">No favorite products yet</h2>
     </section>
 <?php endif; ?>
-

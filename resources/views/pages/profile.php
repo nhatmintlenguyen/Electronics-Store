@@ -24,7 +24,7 @@
             <p class="mt-2 text-sm font-semibold text-slate-900 dark:text-white"><?php echo htmlspecialchars($user['email']); ?></p>
         </div>
         <div class="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Vai trò</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Role</p>
             <p class="mt-2 text-sm font-semibold capitalize text-slate-900 dark:text-white"><?php echo htmlspecialchars($user['role']); ?></p>
         </div>
     </div>

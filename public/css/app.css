@@ -319,11 +319,22 @@
     border-radius: 9999px;
     background: rgba(15, 110, 235, 0.1);
     color: var(--primary-color);
+    transform: rotate(0deg);
     transition: transform 180ms ease;
 }
 
 .product-description-toggle[open] .product-description-toggle-icon {
     transform: rotate(180deg);
+}
+
+.product-description-toggle-icon::before {
+    content: "";
+    display: block;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-1px) rotate(45deg);
 }
 
 .product-description {

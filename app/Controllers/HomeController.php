@@ -11,7 +11,7 @@ class HomeController
 
         view('pages/home.php', [
             'page_title' => t('home'),
-            'page_description' => 'Trang chủ TechStore với giao diện dạng tạp chí, hero banner, danh mục và sản phẩm nổi bật.',
+            'page_description' => 'TechStore homepage with a magazine-style layout, hero banner, categories, and featured products.',
             'totalProducts' => Product::countAll($conn),
             'products' => $products,
             'featuredProducts' => Product::featured($conn, 4),

@@ -9,7 +9,7 @@ class WishlistController
 
         view('pages/wishlist.php', [
             'page_title' => t('wishlist'),
-            'page_description' => 'Danh sách sản phẩm yêu thích được lưu tạm trong phiên làm việc.',
+            'page_description' => 'Wishlist products saved temporarily in the current session.',
             'wishlistProducts' => Product::findManyWithCategory(getDBConnection(), $wishlistIds),
         ]);
     }

@@ -11,16 +11,16 @@
                         <span class="text-xl font-bold tracking-tight">TechStore</span>
                     </div>
                     <p class="text-sm text-slate-600 dark:text-slate-400">
-                        Điểm đến đáng tin cậy của bạn cho các thiết bị điện tử chất lượng.
+                        Your trusted destination for quality electronics.
                     </p>
                 </div>
 
                 <div>
-                    <h5 class="font-bold text-slate-900 dark:text-white mb-4">Liên kết nhanh</h5>
+                    <h5 class="font-bold text-slate-900 dark:text-white mb-4">Quick Links</h5>
                     <ul class="space-y-2 text-sm">
                         <li><a href="<?php echo url('index.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('home'); ?></a></li>
                         <li><a href="<?php echo url('products.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('products'); ?></a></li>
-                        <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Cửa hàng</a></li>
+                        <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Stores</a></li>
                         <li><a href="<?php echo url('about.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('about_us'); ?></a></li>
                     </ul>
                 </div>
@@ -29,8 +29,8 @@
                     <h5 class="font-bold text-slate-900 dark:text-white mb-4"><?php echo t('customer_support'); ?></h5>
                     <ul class="space-y-2 text-sm">
                         <li><a href="<?php echo url('contact.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('contact'); ?></a></li>
-                        <li><a href="<?php echo url('products.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Hướng dẫn mua hàng</a></li>
-                        <li><a href="<?php echo url('about.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Chính sách đổi trả</a></li>
+                        <li><a href="<?php echo url('products.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Buying Guide</a></li>
+                        <li><a href="<?php echo url('about.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Return Policy</a></li>
                         <li><a href="<?php echo url('locations.php'); ?>" class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"><?php echo t('warranty'); ?></a></li>
                     </ul>
                 </div>
@@ -48,7 +48,7 @@
                         </p>
                         <p class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-lg">location_on</span>
-                            Hà Nội, Việt Nam
+                            Hanoi, Vietnam
                         </p>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                 <div class="flex gap-6 text-xs">
                     <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('privacy_policy'); ?></a>
                     <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors"><?php echo t('terms_of_service'); ?></a>
-                    <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors">Cài đặt cookie</a>
+                    <a href="<?php echo url('about.php'); ?>" class="text-slate-500 hover:text-primary transition-colors">Cookie Settings</a>
                 </div>
             </div>
         </div>

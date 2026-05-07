@@ -52,7 +52,7 @@ class ApiController
 
         $this->json([
             'success' => true,
-            'message' => 'Đã thêm vào giỏ hàng.',
+            'message' => 'Added to cart.',
             'cart_count' => $_SESSION['cart_count'],
         ]);
     }
@@ -79,7 +79,7 @@ class ApiController
 
         $this->json([
             'success' => true,
-            'message' => 'Đã thêm vào yêu thích.',
+            'message' => 'Added to wishlist.',
         ]);
     }
 
