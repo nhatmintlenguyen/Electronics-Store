@@ -12,13 +12,19 @@ function url(string $path = ''): string
 
 function asset(string $path): string
 {
-    return url('assets/' . ltrim($path, '/'));
+    return url(ltrim($path, '/'));
 }
 
 function redirectTo(string $path): void
 {
     header('Location: ' . url($path));
     exit();
+}
+
+function view(string $template, array $data = []): void
+{
+    extract($data, EXTR_SKIP);
+    require VIEW_PATH . '/' . ltrim($template, '/');
 }
 
 function isLoggedIn(): bool
@@ -53,6 +59,54 @@ function sanitize(string $data): string
 function formatPrice(float|int|string $price): string
 {
     return number_format((float) $price, 0, ',', '.') . '₫';
+}
+
+function productsPageUrl(?int $categoryFilter, string $search, string $sort, int $page): string
+{
+    $params = [
+        'sort' => $sort,
+        'page' => $page,
+    ];
+
+    if ($categoryFilter) {
+        $params['category'] = $categoryFilter;
+    }
+
+    if ($search !== '') {
+        $params['search'] = $search;
+    }
+
+    return url('products.php?' . http_build_query($params));
+}
+
+function categoryIconName(string $categoryName): string
+{
+    $normalized = strtolower(trim($categoryName));
+
+    return match ($normalized) {
+        'smartphones', 'smartphone', 'phones', 'phone', 'mobile' => 'smartphone',
+        'laptops', 'laptop', 'notebooks', 'notebook' => 'laptop_mac',
+        'tablets', 'tablet', 'ipad', 'ipads' => 'tablet_mac',
+        'audio', 'headphones', 'earbuds', 'speakers' => 'headphones',
+        'accessories', 'accessory', 'gadgets' => 'cable',
+        'monitors', 'monitor', 'display', 'displays' => 'desktop_windows',
+        'smartwatches', 'smartwatch', 'watch', 'watches' => 'watch',
+        default => 'category',
+    };
+}
+
+function authText(string $vi, string $en): string
+{
+    return getCurrentLanguage() === 'vi' ? $vi : $en;
+}
+
+function passwordValidationError(string $password): string
+{
+    if (strlen($password) < 8) {
+        return authText('Mật khẩu phải có ít nhất 8 ký tự.', 'Password must be at least 8 characters long.');
+    }
+
+    return '';
 }
 
 function hashPassword(string $password): string

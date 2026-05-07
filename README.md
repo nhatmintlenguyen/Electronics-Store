@@ -1,104 +1,126 @@
 # Electronics Store
 
-Dynamic PHP/MySQL semester project for the Web Programming course. The codebase has been refactored into an application-style structure with `app/` for shared logic, `public/` for web entry points, `database/` for schema/data assets, and `scripts/` for scraping and data enrichment.
+Semester project built with PHP + MySQL for Web Programming.
 
-## Current Structure
+## Mục tiêu refactor
+
+Codebase này đã được sắp xếp lại để bám sát structure gợi ý:
+
+```text
+project-root/
+├── public/        # entry points + public assets
+├── app/           # bootstrap + shared application logic
+├── config/        # app/database configuration
+├── resources/     # views/templates
+├── storage/       # archives, logs, runtime-oriented files
+├── database/      # schema + data files
+├── scripts/       # scraping/migration utilities
+└── README.md
+```
+
+## Structure hiện tại
 
 ```text
 electronics_store/
-├── app/
-│   ├── bootstrap.php
-│   ├── Config/
-│   │   └── app.php
-│   ├── Support/
-│   │   ├── helpers.php
-│   │   └── language.php
-│   └── Views/
-│       └── layouts/
-│           ├── footer.php
-│           └── header.php
 ├── public/
 │   ├── index.php
 │   ├── products.php
 │   ├── product_detail.php
 │   ├── login.php
-│   ├── logout.php
+│   ├── profile.php
+│   ├── cart.php
+│   ├── wishlist.php
 │   ├── locations.php
+│   ├── about.php
+│   ├── contact.php
+│   ├── logout.php
+│   ├── add_to_cart.php
+│   ├── add_to_wishlist.php
+│   ├── search_products.php
+│   ├── filter_products.php
+│   ├── sitemap.xml
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
+│   ├── images/
 │   └── assets/
-│       ├── css/style.css
-│       └── js/script.js
-├── database/
-│   └── schema/
-│       └── database_setup.sql
-├── scripts/
-│   ├── scraper_enhanced.py
-│   ├── insert_data.py
-│   ├── enrich_fields.py
-│   ├── main.py
-│   └── setup.sh
+├── app/
+│   ├── bootstrap.php
+│   └── Support/
+│       ├── helpers.php
+│       └── language.php
+├── config/
+│   └── app.php
 ├── resources/
+│   └── views/
+│       └── layouts/
+│           ├── header.php
+│           └── footer.php
 ├── storage/
-├── pyproject.toml
+│   └── archive/
+│       └── legacy/
+├── database/
+│   ├── schema/
+│   │   └── database_setup.sql
+│   └── data/
+├── scripts/
 ├── requirements.txt
-└── SemesterProject.pdf
+└── pyproject.toml
 ```
 
-## Tech Stack
+## Tech stack
 
 - PHP 8+
 - MySQL / MariaDB
-- HTML, CSS, JavaScript
-- Tailwind CDN for UI styling
-- Python for scraping and data enrichment
+- HTML + Tailwind CDN + JavaScript thuần
+- Python scripts cho scraping / migration
 
-## Features Present In The Current Version
+## Chức năng hiện có
 
-- Product catalog from MySQL
-- Product sorting and category filtering
-- Product detail page with breadcrumbs
-- Shared app bootstrap and helper layer
-- Multi-language support scaffold (`vi` / `en`)
-- Store locations page
-- Python scraping pipeline
-- Product field enrichment script
+- Trang chủ với giao diện storefront, hero, featured products, category filter
+- Product catalog có lọc danh mục, tìm kiếm, sắp xếp, phân trang
+- Product detail có mô tả HTML và tình trạng cửa hàng
+- Tìm kiếm AJAX
+- Add-to-cart / add-to-wishlist bằng AJAX
+- Cart / wishlist lưu bằng session
+- Login / register / forgot password
+- Profile page
+- About / contact / locations pages
 
-## Prerequisites
+## Chạy local
 
-- PHP 8.0+
-- MySQL / MariaDB
-- Python 3.10+ recommended
-
-## Database Setup
-
-Create the database:
+### 1. Tạo database
 
 ```sql
-CREATE DATABASE electronics_store;
+CREATE DATABASE electronics_store CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Import the schema:
+### 2. Import schema
 
 ```bash
 mysql -u root -p electronics_store < database/schema/database_setup.sql
 ```
 
-## Application Configuration
+### 3. Cấu hình kết nối PHP
 
-Edit database credentials in [app/Config/app.php](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/app/Config/app.php):
+Sửa file:
+
+```text
+config/app.php
+```
+
+Các hằng chính:
 
 ```php
-const DB_HOST = 'localhost';
+const DB_HOST = '127.0.0.1';
+const DB_PORT = 3306;
 const DB_USER = 'root';
 const DB_PASS = '';
 const DB_NAME = 'electronics_store';
 ```
 
-If your Python scripts connect to MySQL directly, also update credentials in:
-
-- [scripts/insert_data.py](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/scripts/insert_data.py)
-- [scripts/enrich_fields.py](/home/nhatminh/Documents/UNIVERSITY/semester 6/web programming/electronics_store/scripts/enrich_fields.py)
-
-## Python Environment
+### 4. Cài Python dependencies nếu cần migration
 
 ```bash
 python3 -m venv .venv
@@ -106,118 +128,64 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-If `requirements.txt` is incomplete in your local copy, install the needed packages manually, for example:
+### 5. Migrate dữ liệu
+
+Khuyến nghị dùng:
 
 ```bash
-pip install requests beautifulsoup4 mysql-connector-python
+python scripts/migrate_mongo_to_mysql.py
 ```
 
-## Data Pipeline
-
-Scrape source product data:
-
-```bash
-python scripts/scraper_enhanced.py
-```
-
-Insert data into MySQL:
-
-```bash
-python scripts/insert_data.py
-```
-
-Enrich product metadata and availability fields:
-
-```bash
-python scripts/enrich_fields.py
-```
-
-`scraper_enhanced.py` is intentionally kept as part of the project.
-
-## Run The Website Locally
-
-This project now uses `public/` as the web document root.
-
-Preferred command:
+### 6. Chạy web server
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-Then open:
+Mở:
 
 - `http://localhost:8000/`
 - `http://localhost:8000/products.php`
 - `http://localhost:8000/product_detail.php?id=1`
-- `http://localhost:8000/login.php`
-- `http://localhost:8000/locations.php`
 
-## Why You Got `Not Found` For `/products.php`
+## Lưu ý structure
 
-If you started the server like this:
+- `public/` chỉ chứa file được web server serve trực tiếp
+- `config/` chứa cấu hình, không để trong `public/`
+- `resources/views/` chứa layout / template dùng chung
+- `app/` chứa bootstrap và shared logic
+- `storage/archive/legacy/` giữ file cũ để tham chiếu, không dùng runtime
 
-```bash
-php -S localhost:8000
-```
+## Troubleshooting nhanh
 
-then PHP served the repository root, but `products.php` is no longer in the root directory. It was moved to `public/products.php` during the refactor.
+### Không load được CSS/JS
 
-That means:
+Kiểm tra:
 
-- `http://localhost:8000/products.php` will fail when serving the repo root
-- `http://localhost:8000/public/products.php` may work in that setup
-- the correct setup is still to run `php -S localhost:8000 -t public`
+- document root phải là `public/`
+- file tồn tại tại:
+  - `public/css/style.css`
+  - `public/js/script.js`
 
-## Apache / Nginx Note
+### Lỗi database connection
 
-If you use Apache or Nginx, point the document root to the `public/` folder, not the repository root.
+Kiểm tra:
 
-Example Apache `DocumentRoot`:
+- MySQL đang chạy
+- DB `electronics_store` đã được tạo
+- thông tin trong `config/app.php` đúng
 
-```apache
-DocumentRoot /path/to/electronics_store/public
-```
+### Trang trắng hoặc 500
 
-## Important Current Limitation
-
-The project structure has been refactored, but some pages and features are still being aligned to the new structure. If a page throws include/path errors, it means that route still needs to be updated to the new `app/` bootstrap flow.
-
-## Troubleshooting
-
-### `Not Found: /products.php`
-
-Use:
+Chạy thử:
 
 ```bash
-php -S localhost:8000 -t public
+php -l public/index.php
+php -l public/product_detail.php
+php -l config/app.php
 ```
 
-### Database connection failed
+Và kiểm tra path include trong:
 
-Check:
-
-- MySQL is running
-- the `electronics_store` database exists
-- credentials in `app/Config/app.php` are correct
-
-### Python script cannot connect to MySQL
-
-Make sure the Python-side DB config matches your local MySQL credentials.
-
-### CSS or JS not loading
-
-Confirm you are serving from `public/` as the document root. The asset files are under:
-
-- `public/assets/css/style.css`
-- `public/assets/js/script.js`
-
-## Suggested Git Workflow
-
-After verifying the local app works with the `public/` document root:
-
-```bash
-git status
-git add -A
-git commit -m "Update README for refactored public app structure"
-git push origin <your-branch>
-```
+- `app/bootstrap.php`
+- `resources/views/layouts/`

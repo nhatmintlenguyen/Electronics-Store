@@ -28,3 +28,6 @@ config_local.php
 
 # Uploads
 assets/images/uploads/
+
+debug 
+.codex 

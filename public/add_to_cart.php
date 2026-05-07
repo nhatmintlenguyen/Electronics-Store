@@ -1,37 +1,6 @@
 <?php
+declare(strict_types=1);
+
 require_once __DIR__ . '/../app/bootstrap.php';
 
-header('Content-Type: application/json; charset=UTF-8');
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
-$productId = (int) ($_POST['product_id'] ?? 0);
-$quantity = max(1, (int) ($_POST['quantity'] ?? 1));
-
-if ($productId <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid product']);
-    exit;
-}
-
-$conn = getDBConnection();
-$stmt = $conn->prepare('SELECT id FROM products WHERE id = :id LIMIT 1');
-$stmt->execute([':id' => $productId]);
-
-if (!$stmt->fetch()) {
-    echo json_encode(['success' => false, 'message' => 'Product not found']);
-    exit;
-}
-
-$_SESSION['cart'] ??= [];
-$_SESSION['cart'][$productId] = (int) ($_SESSION['cart'][$productId] ?? 0) + $quantity;
-$_SESSION['cart_count'] = array_sum(array_map('intval', $_SESSION['cart']));
-
-echo json_encode([
-    'success' => true,
-    'message' => 'Đã thêm vào giỏ hàng.',
-    'cart_count' => $_SESSION['cart_count'],
-]);
+(new ApiController())->addToCart();
