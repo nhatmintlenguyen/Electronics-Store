@@ -11,17 +11,11 @@ services:
       DB_DATABASE: cv_management
       DB_USERNAME: root
       DB_PASSWORD: root
-      MAIL_HOST: mailpit
-      MAIL_PORT: 1025
-      MAIL_FROM_EMAIL: no-reply@onecv.local
-      MAIL_FROM_NAME: OneCV
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
-      mailpit:
-        condition: service_started
     volumes:
       - .:/app
     restart: always
@@ -60,4 +54,3 @@ services:
 
 volumes:
   onecv-db-data:
-  onecv-mailpit-data:
