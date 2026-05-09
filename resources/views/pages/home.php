@@ -4,7 +4,7 @@
         <div class="home-hero-card relative overflow-hidden rounded-[1.6rem] px-7 py-8 sm:px-10 sm:py-12">
             <div class="absolute inset-0">
                 <div class="home-hero-image absolute inset-0"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/58 to-slate-900/20"></div>
+                <div class="absolute inset-0 bg-slate-950/65"></div>
             </div>
             <div class="relative z-10 max-w-md">
                 <span class="mb-4 inline-flex rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white">New Arrival</span>
@@ -18,7 +18,7 @@
                     <a href="<?php echo url('products.php'); ?>" class="inline-flex items-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 hover:bg-primary/90">
                         <?php echo t('shop_now'); ?>
                     </a>
-                    <a href="<?php echo url('about.php'); ?>" class="inline-flex items-center rounded-xl bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/20">
+                    <a href="<?php echo url('about.php'); ?>" class="inline-flex items-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 transition-colors hover:bg-slate-100">
                         <?php echo t('learn_more'); ?>
                     </a>
                 </div>
@@ -37,15 +37,15 @@
                 </div>
             </div>
 
-            <div class="rounded-[1.6rem] bg-gradient-to-br from-primary to-sky-500 p-6 text-white shadow-lg shadow-primary/20">
+            <div class="rounded-[1.6rem] border border-slate-200 bg-white p-6 text-slate-900 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-white">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-white/70"><?php echo t('free_shipping'); ?></span>
-                    <span class="material-symbols-outlined">local_shipping</span>
+                    <span class="text-xs font-bold uppercase tracking-[0.18em] text-primary"><?php echo t('free_shipping'); ?></span>
+                    <span class="material-symbols-outlined text-primary">local_shipping</span>
                 </div>
                 <p class="mt-6 text-2xl font-black leading-tight">
                     Free shipping for orders over 1,000,000₫
                 </p>
-                <p class="mt-3 text-sm text-white/80">
+                <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
                     Shop quickly, track products, and check in-store availability directly on the website.
                 </p>
             </div>

@@ -31,8 +31,7 @@ electronics_store/
 │   ├── index.php          # Front controller, all web requests enter here
 │   ├── .htaccess          # Clean URL rewrite to public/index.php
 │   ├── css/
-│   │   ├── app.css        # Main stylesheet
-│   │   └── style.css      # Legacy/compatibility stylesheet
+│   │   └── app.css        # Main stylesheet
 │   ├── js/
 │   │   ├── app.js         # Main JavaScript
 │   │   └── script.js      # Legacy/compatibility JavaScript
